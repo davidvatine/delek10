@@ -13,6 +13,53 @@ const GANTT_LIST_KEY = "ten-gantt-list-v1"; // list of saved gantt keys
 
 function ganttKey(y, m) { return `ten-gantt-${y}-${m}`; }
 
+// ── Supabase share helpers ──────────────────────────────────────────
+const SUPABASE_URL = "https://oexdfprqbhlbuesaxfjx.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9leGRmcHJxYmhsYnVlc2F4Zmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDk4MzQsImV4cCI6MjA4ODI4NTgzNH0.jh-Tv2d8dQOW8UQ6UgiBcpVTTzlaePzWQg9ozm6BSgs";
+
+function makeShareId(year, month) {
+  const rand = Math.random().toString(36).slice(2,7);
+  return `${year}-${String(month).padStart(2,"0")}-${rand}`;
+}
+
+async function saveGanttToSupabase(id, year, month, ne, posts) {
+  const r = await fetch(`/api/gantt?action=save`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ id, year, month, ne, posts })
+  });
+  return r.ok;
+}
+
+async function loadGanttFromSupabase(id) {
+  const r = await fetch(`/api/gantt?action=load&id=${id}`);
+  if (!r.ok) return null;
+  return r.json();
+}
+
+async function addComment(gantt_id, post_id, post_type, comment, author_name, gantt_url) {
+  const r = await fetch(`/api/gantt?action=comment`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ gantt_id, post_id, post_type, comment, author_name })
+  });
+  if (r.ok) {
+    // fire-and-forget notification
+    fetch(`/api/notify`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ gantt_id, post_type, comment, author_name, gantt_url })
+    }).catch(()=>{});
+  }
+  return r.ok;
+}
+
+async function getComments(gantt_id) {
+  const r = await fetch(`/api/gantt?action=comments&gantt_id=${gantt_id}`);
+  if (!r.ok) return [];
+  return r.json();
+}
+
 function listSavedGantts() {
   try {
     const list = JSON.parse(localStorage.getItem(GANTT_LIST_KEY) || "[]");
@@ -668,6 +715,47 @@ ${post.copy||editVal}
   );
 }
 
+/* ─── COMMENT BOX (client view) ─────────────────────────────────── */
+function CommentBox({ganttId, postId, postType, ganttUrl, existingComments}){
+  const [text, setText] = useState("");
+  const [name, setName] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const myComments = existingComments.filter(c=>c.post_id===postId);
+
+  async function send(){
+    if(!text.trim()) return;
+    setSending(true);
+    const ok = await addComment(ganttId, postId, postType, text.trim(), name.trim(), ganttUrl);
+    if(ok){ setSent(true); setText(""); setTimeout(()=>setSent(false),4000); }
+    setSending(false);
+  }
+
+  return (
+    <div style={{marginTop:12,borderTop:"1px solid #E3F2FD",paddingTop:12}}>
+      {myComments.length>0 && (
+        <div style={{marginBottom:10}}>
+          {myComments.map((c,i)=>(
+            <div key={i} style={{background:"#FFF8E1",borderRadius:8,padding:"8px 12px",marginBottom:6,fontSize:12,border:"1px solid #FFE082"}}>
+              <span style={{fontWeight:700,color:"#E65100"}}>{c.author_name||"לקוח"}: </span>
+              <span style={{color:"#333"}}>{c.comment}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={{fontSize:12,fontWeight:700,color:"#1565C0",marginBottom:6}}>💬 השאר הערה לפוסט זה</div>
+      <input value={name} onChange={e=>setName(e.target.value)} placeholder="שמך (אופציונלי)"
+        style={{width:"100%",padding:"7px 10px",borderRadius:6,border:"1px solid #CFD8DC",fontSize:12,marginBottom:6,boxSizing:"border-box",fontFamily:"Arial"}}/>
+      <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="הערה, בקשת שינוי, או אישור..."
+        style={{width:"100%",height:60,padding:"7px 10px",borderRadius:6,border:"1px solid #CFD8DC",fontSize:12,resize:"vertical",boxSizing:"border-box",fontFamily:"Arial"}}/>
+      <button onClick={send} disabled={sending||!text.trim()}
+        style={{marginTop:6,background:"#1565C0",color:"#fff",border:"none",borderRadius:6,padding:"7px 18px",fontSize:12,fontWeight:700,cursor:"pointer",opacity:sending?0.7:1}}>
+        {sent?"✅ נשלח!":sending?"שולח...":"שלח הערה"}
+      </button>
+    </div>
+  );
+}
+
 /* ─── MAIN ────────────────────────────────────────────────────────── */
 export default function TenGanttAI(){
   const now = new Date();
@@ -681,6 +769,11 @@ export default function TenGanttAI(){
   const [saveStatus, setSaveStatus] = useState(""); // "saving" | "saved" | "loaded" | ""
   const [storageLoading, setStorageLoading] = useState(true);
   const [savedGantts, setSavedGantts] = useState([]);
+  const [shareId, setShareId] = useState(null);      // current gantt's share ID
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [isClientView, setIsClientView] = useState(false); // viewing as client
+  const [clientComments, setClientComments] = useState([]); // comments from supabase
 
   const c = getCtx(month);
   const AUTO = ["monday","holiday","fun","recruit"];
@@ -688,6 +781,29 @@ export default function TenGanttAI(){
   const autoTotal = posts.filter(p=>AUTO.includes(p.tk)).length;
   const isDone = progress.done >= autoTotal && autoTotal > 0;
   const pct = autoTotal > 0 ? Math.round((progress.done/autoTotal)*100) : 0;
+
+  /* ── CHECK if opened as client view (URL has ?gantt=ID) ── */
+  useEffect(()=>{
+    const params = new URLSearchParams(window.location.search);
+    const gid = params.get("gantt");
+    if(gid){
+      setIsClientView(true);
+      setShareId(gid);
+      // load from supabase
+      loadGanttFromSupabase(gid).then(data=>{
+        if(data){
+          setYear(data.year);
+          setMonth(data.month);
+          setNe(data.ne||"");
+          setPosts(deserializePosts(data.posts));
+          setPhase("gantt");
+        }
+        setStorageLoading(false);
+      });
+      // load comments
+      getComments(gid).then(setClientComments);
+    }
+  },[]);
 
   /* ── LOAD saved state on mount ── */
   useEffect(()=>{
@@ -743,6 +859,29 @@ export default function TenGanttAI(){
   function deleteGantt(g){
     deleteGanttFromStorage(g.year, g.month);
     setSavedGantts(listSavedGantts());
+  }
+
+  async function shareGantt(){
+    setShareLoading(true);
+    try {
+      const id = shareId || makeShareId(year, month);
+      const ok = await saveGanttToSupabase(id, year, month, ne, posts);
+      if(ok){
+        setShareId(id);
+        // save shareId locally too
+        saveGanttToStorage(year, month, ne, posts);
+        setSavedGantts(listSavedGantts());
+      }
+    } catch(e){}
+    setShareLoading(false);
+  }
+
+  function copyShareLink(){
+    const url = `${window.location.origin}?gantt=${shareId}`;
+    navigator.clipboard.writeText(url).then(()=>{
+      setShareCopied(true);
+      setTimeout(()=>setShareCopied(false), 3000);
+    });
   }
 
   async function runAuto(arr){
@@ -936,6 +1075,16 @@ export default function TenGanttAI(){
     <div style={{minHeight:"100vh",background:BG,fontFamily:"Arial,sans-serif",direction:"rtl"}}>
       {showExport && <ExportModal posts={posts} month={month} year={year} c={c} onClose={()=>setShowExport(false)}/>}
 
+      {isClientView && (
+        <div style={{background:"#E65100",padding:"10px 22px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+          <span style={{fontSize:18}}>👋</span>
+          <div style={{color:WH,fontSize:13,fontWeight:700,flex:1}}>
+            תצוגת לקוח — ניתן לראות את הפוסטים ולשלוח הערות לכל פוסט
+          </div>
+          <div style={{color:"rgba(255,255,255,0.75)",fontSize:11}}>גאנט {MHE[month]} {year}</div>
+        </div>
+      )}
+
       <div style={{background:`linear-gradient(135deg,${BL} 0%,#0D47A1 100%)`,padding:"13px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexWrap:"wrap"}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
           <div style={{width:44,height:44,borderRadius:"50%",background:WH,display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -956,6 +1105,21 @@ export default function TenGanttAI(){
             style={{background:"#4CAF50",color:WH,border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontSize:13,fontWeight:800}}>
             📤 ייצוא ושיתוף
           </button>
+          {!isClientView && (
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              {!shareId ? (
+                <button onClick={shareGantt} disabled={shareLoading}
+                  style={{background:"#FF6F00",color:WH,border:"none",borderRadius:8,padding:"8px 16px",cursor:"pointer",fontSize:13,fontWeight:800,opacity:shareLoading?0.7:1}}>
+                  {shareLoading?"⏳ שומר...":"🔗 שתף ללקוח"}
+                </button>
+              ) : (
+                <button onClick={copyShareLink}
+                  style={{background:shareCopied?"#388E3C":"#FF6F00",color:WH,border:"none",borderRadius:8,padding:"8px 16px",cursor:"pointer",fontSize:13,fontWeight:800}}>
+                  {shareCopied?"✅ הועתק!":"🔗 העתק לינק ללקוח"}
+                </button>
+              )}
+            </div>
+          )}
           <button onClick={()=>setPhase("list")}
             style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",color:WH,borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:12,fontWeight:700}}>
             📂 גאנטים שמורים {savedGantts.length>1&&<span style={{background:RD,borderRadius:"50%",padding:"0 5px",fontSize:10,marginRight:4}}>{savedGantts.length}</span>}
@@ -1026,8 +1190,21 @@ export default function TenGanttAI(){
 
         <div style={{fontSize:12,color:"#78909C",marginBottom:8}}>לחץ על כל שורה לפתיחת הפוסט המלא</div>
         {posts.map(p=>(
-          <PostCard key={p.id} post={p} c={c} month={month} ne={ne} onUpdate={upd}/>
-        ))}
+            <div key={p.id}>
+              <PostCard post={p} c={c} month={month} ne={ne} onUpdate={isClientView ? ()=>{} : upd}/>
+              {isClientView && shareId && (
+                <div style={{marginTop:-8,marginBottom:14,background:"#fff",borderRadius:"0 0 12px 12px",padding:"0 18px 16px",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
+                  <CommentBox
+                    ganttId={shareId}
+                    postId={p.id}
+                    postType={p.type}
+                    ganttUrl={window.location.href}
+                    existingComments={clientComments}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
 
         <div style={{background:"#E8EAF6",borderRadius:10,padding:"13px 18px",fontSize:12,color:"#283593",border:"1px solid #9FA8DA",marginTop:6,lineHeight:1.8}}>
           <strong>📤 איך לשתף ללקוח:</strong><br/>
