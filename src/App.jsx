@@ -9,6 +9,27 @@ const DISC        = `*החיסכון בתשלום באמצעות כרטיס מו
 const MHE = ["","ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const DHE = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const APP_VERSION = "v6.0 — אישור לקוח + העלאת תמונות";
+const LOGO_SRC = "data:image/png;base64,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";
+
+// ── רשימת לקוחות ──
+const DEFAULT_CLIENTS = [
+  {
+    id: "delek10",
+    name: "דלק Ten",
+    logo: LOGO_SRC,
+    color: "#1565C0",
+    appLink: "https://ten.onelink.me/Cdb1/e3lfcju1",
+    whatsapp: "054-3207261",
+    careerLink: "https://www.10ten.co.il/%D7%A7%D7%A8%D7%99%D7%99%D7%A8%D7%94",
+  }
+];
+const CLIENTS_KEY = "ten-gantt-clients-v1";
+function loadClients() {
+  try { return JSON.parse(localStorage.getItem(CLIENTS_KEY)) || DEFAULT_CLIENTS; } catch(e) { return DEFAULT_CLIENTS; }
+}
+function saveClients(list) {
+  try { localStorage.setItem(CLIENTS_KEY, JSON.stringify(list)); } catch(e) {}
+}
 const STORAGE_KEY = "ten-gantt-v5"; // legacy single-gantt key
 const GANTT_LIST_KEY = "ten-gantt-list-v1"; // list of saved gantt keys
 
@@ -771,20 +792,21 @@ function ClientPostRow({post, feedback, onChange}){
           {post.date?`${fmt(post.date)} | ${dn(post.date)}`:"תאריך לפי מבצע"}
         </span>
         <Badge type={post.type}/>
-        <div style={{marginRight:"auto",display:"flex",gap:8}}>
-          <button onClick={()=>onChange({...fb,approved:true})}
+        <div style={{marginRight:"auto"}}>
+          <button onClick={()=>onChange({...fb,approved:!fb.approved})}
             style={{background:fb.approved?"#4CAF50":"white",color:fb.approved?"white":"#4CAF50",
               border:"2px solid #4CAF50",borderRadius:7,padding:"4px 14px",cursor:"pointer",fontSize:12,fontWeight:800}}>
-            ✅ מאושר
-          </button>
-          <button onClick={()=>onChange({...fb,approved:false})}
-            style={{background:!fb.approved&&fb.note?"#FFF3E0":"white",color:"#E65100",
-              border:"2px solid #E65100",borderRadius:7,padding:"4px 14px",cursor:"pointer",fontSize:12,fontWeight:700}}>
-            ✏️ יש הערה
+            {fb.approved?"✅ מאושר":"אישור"}
           </button>
         </div>
       </div>
 
+      {/* Image - if uploaded by designer */}
+      {post.image && (
+        <div style={{padding:"10px 16px",borderTop:"1px solid #ECEFF1"}}>
+          <img src={post.image} alt="פוסט" style={{width:"100%",borderRadius:10,display:"block"}}/>
+        </div>
+      )}
       {/* Post text */}
       {post.copy && (
         <div style={{padding:"10px 16px",fontSize:13,lineHeight:1.8,color:"#37474F",
@@ -804,14 +826,14 @@ function ClientPostRow({post, feedback, onChange}){
         </div>
       )}
 
-      {/* Note field - only show when "יש הערה" clicked */}
-      {!fb.approved && (
+      {/* Note field - always visible */}
+      {post.copy && (
         <div style={{padding:"8px 16px 12px",borderTop:"1px solid #ECEFF1"}}>
           <textarea value={fb.note||""} onChange={e=>onChange({...fb,note:e.target.value})}
-            placeholder="מה לשנות? הערה לצוות..."
-            style={{width:"100%",height:56,padding:"7px 10px",borderRadius:7,
-              border:"1px solid #FFCCBC",fontSize:12,resize:"vertical",
-              boxSizing:"border-box",fontFamily:"Arial",background:"#FFF8F6"}}/>
+            placeholder="הערה לצוות (אופציונלי)..."
+            style={{width:"100%",height:52,padding:"7px 10px",borderRadius:7,
+              border:"1px solid #CFD8DC",fontSize:12,resize:"vertical",
+              boxSizing:"border-box",fontFamily:"Arial",background:"#FAFBFC"}}/>
         </div>
       )}
     </div>
@@ -823,13 +845,17 @@ export default function TenGanttAI(){
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth()+1);
-  const [phase, setPhase] = useState("setup"); // "setup" | "gantt" | "list"
+  const [phase, setPhase] = useState("client-select"); // client-select | setup | list | gantt
   const [posts, setPosts] = useState([]);
   const [progress, setProgress] = useState({done:0,total:0});
   const [ne, setNe] = useState("");
   const [showExport, setShowExport] = useState(false);
   const [saveStatus, setSaveStatus] = useState(""); // "saving" | "saved" | "loaded" | ""
   const [storageLoading, setStorageLoading] = useState(true);
+  const [clients, setClients] = useState(loadClients);
+  const [activeClient, setActiveClient] = useState(()=>loadClients()[0]);
+  const [clients, setClients] = useState(loadClients);
+  const [activeClient, setActiveClient] = useState(()=>loadClients()[0]||DEFAULT_CLIENTS[0]);
   const [savedGantts, setSavedGantts] = useState([]);
   const [shareId, setShareId] = useState(null);      // current gantt's share ID
   const [shareLoading, setShareLoading] = useState(false);
@@ -929,18 +955,35 @@ export default function TenGanttAI(){
 
   async function sendClientFeedback(){
     setSending(true);
-    const approved = posts.filter(p=>clientFeedback[p.id]?.approved).map(p=>p.type);
-    const notes = posts.filter(p=>clientFeedback[p.id]?.note).map(p=>({type:p.type, note:clientFeedback[p.id].note}));
-    const promos = posts.filter(p=>p.tk==="promo"&&clientFeedback[p.id]?.promoText).map(p=>({num:p.num, text:clientFeedback[p.id].promoText}));
-    const summaryParts = [];
-    if(clientName) summaryParts.push("מאת: " + clientName);
-    summaryParts.push("\n✅ פוסטים מאושרים (" + approved.length + "):\n" + (approved.join(", ")||"אין"));
-    if(notes.length) summaryParts.push("\n✏️ הערות:\n" + notes.map(n=>"• " + n.type + ": " + n.note).join("\n"));
-    if(promos.length) summaryParts.push("\n📦 מבצעים:\n" + promos.map(p=>"• פוסט " + p.num + ": " + p.text).join("\n"));
-    const summary = summaryParts.join("\n");
-    await addComment(shareId, "summary", "סיכום", summary, clientName, window.location.href);
+    try {
+      const approved = posts.filter(p=>clientFeedback[p.id]?.approved).map(p=>p.type);
+      const notes = posts.filter(p=>clientFeedback[p.id]?.note).map(p=>({type:p.type, note:clientFeedback[p.id].note}));
+      const promos = posts.filter(p=>p.tk==="promo"&&clientFeedback[p.id]?.promoText).map(p=>({num:p.num, text:clientFeedback[p.id].promoText}));
+      const summaryParts = [];
+      if(clientName) summaryParts.push("מאת: " + clientName);
+      summaryParts.push("\n✅ פוסטים מאושרים (" + approved.length + "/" + posts.length + "):\n" + (approved.join(", ")||"אין"));
+      if(notes.length) summaryParts.push("\n✏️ הערות:\n" + notes.map(n=>"• " + n.type + ": " + n.note).join("\n"));
+      if(promos.length) summaryParts.push("\n📦 מבצעים:\n" + promos.map(p=>"• פוסט " + p.num + ": " + p.text).join("\n"));
+      const summary = summaryParts.join("\n");
+      // Save to Supabase
+      if(shareId) {
+        await addComment(shareId, "summary", "סיכום", summary, clientName, window.location.href);
+      }
+      // Send email directly via notify API
+      await fetch("/api/notify", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          gantt_id: shareId||"unknown",
+          post_type: "סיכום פידבק",
+          comment: summary,
+          author_name: clientName||"לקוח",
+          gantt_url: window.location.href
+        })
+      });
+      setSent(true);
+    } catch(e){ console.error(e); }
     setSending(false);
-    setSent(true);
   }
 
   async function shareGantt(){
@@ -1081,15 +1124,72 @@ export default function TenGanttAI(){
   );
 
   /* ── SETUP ── */
+  /* ── CLIENT SELECT SCREEN ── */
+  if(phase==="client-select") {
+    const [showAdd, setShowAdd] = React.useState(false);
+    const [newName, setNewName] = React.useState("");
+    const [newColor, setNewColor] = React.useState("#1565C0");
+    function addClient(){
+      if(!newName.trim()) return;
+      const nc={id:"c-"+Date.now(),name:newName.trim(),logo:null,color:newColor};
+      const updated=[...clients,nc];
+      setClients(updated); saveClients(updated);
+      setNewName(""); setNewColor("#1565C0"); setShowAdd(false);
+    }
+    return (
+      <div style={{minHeight:"100vh",background:BG,fontFamily:"Arial,sans-serif",direction:"rtl",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24}}>
+        <div style={{background:WH,borderRadius:20,padding:36,boxShadow:"0 8px 40px rgba(0,0,0,0.12)",maxWidth:460,width:"100%"}}>
+          <div style={{textAlign:"center",marginBottom:28}}>
+            <div style={{fontSize:40,marginBottom:8}}>📋</div>
+            <div style={{fontSize:22,fontWeight:900,color:DK}}>בחר לקוח</div>
+            <div style={{fontSize:13,color:"#78909C",marginTop:4}}>בחר לקוח ליצירת גאנט</div>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:20}}>
+            {clients.map(cl=>(
+              <button key={cl.id} onClick={()=>{setActiveClient(cl);setPhase("setup");}}
+                style={{display:"flex",alignItems:"center",gap:14,background:"#F8FAFF",border:`2px solid ${cl.color||BL}`,borderRadius:14,padding:"14px 18px",cursor:"pointer",textAlign:"right"}}>
+                {cl.logo
+                  ? <img src={cl.logo} style={{width:48,height:48,borderRadius:"50%",objectFit:"cover",flexShrink:0}} alt={cl.name}/>
+                  : <div style={{width:48,height:48,borderRadius:"50%",background:cl.color||BL,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <span style={{color:"white",fontWeight:900,fontSize:22}}>{cl.name[0]}</span>
+                    </div>
+                }
+                <div style={{flex:1,fontWeight:800,fontSize:16,color:DK}}>{cl.name}</div>
+                <span style={{color:cl.color||BL,fontWeight:700,fontSize:20}}>←</span>
+              </button>
+            ))}
+          </div>
+          {showAdd ? (
+            <div style={{background:"#F8FAFF",borderRadius:12,padding:18,border:`1px solid ${BR}`}}>
+              <div style={{fontWeight:700,fontSize:14,color:DK,marginBottom:12}}>לקוח חדש</div>
+              <input value={newName} onChange={e=>setNewName(e.target.value)} placeholder="שם הלקוח"
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:`1px solid ${BR}`,fontSize:14,fontFamily:"Arial",boxSizing:"border-box",marginBottom:10}}/>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
+                <label style={{fontSize:13,color:"#78909C"}}>צבע:</label>
+                <input type="color" value={newColor} onChange={e=>setNewColor(e.target.value)} style={{width:40,height:32,border:"none",borderRadius:6,cursor:"pointer"}}/>
+              </div>
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={addClient} disabled={!newName.trim()} style={{flex:1,background:BL,color:WH,border:"none",borderRadius:8,padding:"9px 0",fontWeight:800,fontSize:14,cursor:"pointer",opacity:newName.trim()?1:0.5}}>➕ הוסף</button>
+                <button onClick={()=>setShowAdd(false)} style={{background:"none",border:`1px solid ${BR}`,borderRadius:8,padding:"9px 16px",cursor:"pointer",fontSize:14}}>ביטול</button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={()=>setShowAdd(true)} style={{width:"100%",background:"none",border:`2px dashed ${BR}`,borderRadius:14,padding:"13px 0",cursor:"pointer",color:"#78909C",fontSize:14,fontWeight:700}}>
+              ➕ הוסף לקוח חדש
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if(phase==="setup") return (
     <div style={{minHeight:"100vh",background:BG,fontFamily:"Arial,sans-serif",direction:"rtl"}}>
       <div style={{background:`linear-gradient(135deg,${BL} 0%,#0D47A1 100%)`,padding:"20px 28px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:14}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <div style={{width:52,height:52,borderRadius:"50%",background:WH,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 12px rgba(0,0,0,0.2)"}}>
-            <span style={{color:BL,fontWeight:900,fontSize:20}}>1</span><span style={{color:RD,fontWeight:900,fontSize:20}}>0</span>
-          </div>
+          <img src={activeClient?.logo||""} style={{width:52,height:52,borderRadius:"50%",objectFit:"cover",boxShadow:"0 3px 12px rgba(0,0,0,0.2)",background:WH,cursor:"pointer"}} onClick={()=>setPhase("client-select")} alt="logo"/>
           <div>
-            <div style={{color:WH,fontSize:20,fontWeight:900}}>גאנט AI | דלק Ten</div>
+            <div style={{color:WH,fontSize:20,fontWeight:900}}>גאנט AI | {activeClient?.name||"לקוח"}</div>
             <div style={{color:"rgba(255,255,255,0.8)",fontSize:13}}>9 פוסטים חודשיים | שמירה אוטומטית | ייצוא קל</div>
             <div style={{color:"rgba(255,255,255,0.5)",fontSize:11,marginTop:2}}>{APP_VERSION}</div>
           </div>
@@ -1159,22 +1259,20 @@ export default function TenGanttAI(){
       {showExport && <ExportModal posts={posts} month={month} year={year} c={c} onClose={()=>setShowExport(false)}/>}
 
       {isClientView && (
-        <div style={{background:"#E65100",padding:"10px 22px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-          <span style={{fontSize:18}}>👋</span>
-          <div style={{color:WH,fontSize:13,fontWeight:700,flex:1}}>
-            תצוגת לקוח — ניתן לראות את הפוסטים ולשלוח הערות לכל פוסט
+        <div style={{background:`linear-gradient(135deg,${BL} 0%,#0D47A1 100%)`,padding:"18px 24px",display:"flex",alignItems:"center",gap:16}}>
+          <img src={LOGO_SRC} style={{width:56,height:56,borderRadius:"50%",objectFit:"cover",background:WH,flexShrink:0}} alt="logo"/>
+          <div style={{flex:1}}>
+            <div style={{color:WH,fontSize:18,fontWeight:900}}>גאנט {MHE[month]} {year} — דלק Ten</div>
+            <div style={{color:"rgba(255,255,255,0.75)",fontSize:12,marginTop:2}}>עברו על הפוסטים, אשרו או הוסיפו הערות, ולחצו שלח בסוף</div>
           </div>
-          <div style={{color:"rgba(255,255,255,0.75)",fontSize:11}}>גאנט {MHE[month]} {year}</div>
         </div>
       )}
 
       <div style={{background:`linear-gradient(135deg,${BL} 0%,#0D47A1 100%)`,padding:"13px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexWrap:"wrap"}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{width:44,height:44,borderRadius:"50%",background:WH,display:"flex",alignItems:"center",justifyContent:"center"}}>
-            <span style={{color:BL,fontWeight:900,fontSize:17}}>1</span><span style={{color:RD,fontWeight:900,fontSize:17}}>0</span>
-          </div>
+          <img src={activeClient?.logo||""} style={{width:44,height:44,borderRadius:"50%",objectFit:"cover",background:WH,cursor:"pointer"}} onClick={()=>setPhase("client-select")} alt="logo"/>
           <div>
-            <div style={{color:WH,fontSize:17,fontWeight:900}}>גאנט {MHE[month]} {year}</div>
+            <div style={{color:WH,fontSize:17,fontWeight:900}}>גאנט {MHE[month]} {year} — {activeClient?.name||"לקוח"}</div>
             <div style={{color:"rgba(255,255,255,0.75)",fontSize:11,display:"flex",alignItems:"center",gap:8}}>
               <span>{c.emoji} {c.season} | {doneCount}/{posts.length} מוכנים | {APP_VERSION}</span>
               {saveStatus==="saving" && <span style={{background:"rgba(255,255,255,0.15)",padding:"1px 8px",borderRadius:10,fontSize:10}}>💾 שומר...</span>}
@@ -1186,30 +1284,24 @@ export default function TenGanttAI(){
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
           <button onClick={()=>setShowExport(true)}
             style={{background:"#4CAF50",color:WH,border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontSize:13,fontWeight:800}}>
-            📤 ייצוא ושיתוף
+            📤 ייצוא
           </button>
           {!isClientView && (
-            <div style={{display:"flex",gap:6,alignItems:"center"}}>
-              {!shareId ? (
-                <button onClick={shareGantt} disabled={shareLoading}
-                  style={{background:"#FF6F00",color:WH,border:"none",borderRadius:8,padding:"8px 16px",cursor:"pointer",fontSize:13,fontWeight:800,opacity:shareLoading?0.7:1}}>
-                  {shareLoading?"⏳ שומר...":"🔗 שתף ללקוח"}
-                </button>
-              ) : (
-                <button onClick={copyShareLink}
-                  style={{background:shareCopied?"#388E3C":"#FF6F00",color:WH,border:"none",borderRadius:8,padding:"8px 16px",cursor:"pointer",fontSize:13,fontWeight:800}}>
-                  {shareCopied?"✅ הועתק!":"🔗 העתק לינק ללקוח"}
-                </button>
-              )}
-            </div>
+            !shareId ? (
+              <button onClick={shareGantt} disabled={shareLoading}
+                style={{background:"#FF6F00",color:WH,border:"none",borderRadius:8,padding:"8px 16px",cursor:"pointer",fontSize:13,fontWeight:800,opacity:shareLoading?0.7:1}}>
+                {shareLoading?"⏳ שומר...":"🔗 שתף ללקוח"}
+              </button>
+            ) : (
+              <button onClick={copyShareLink}
+                style={{background:shareCopied?"#388E3C":"#FF6F00",color:WH,border:"none",borderRadius:8,padding:"8px 16px",cursor:"pointer",fontSize:13,fontWeight:800}}>
+                {shareCopied?"✅ הועתק!":"🔗 העתק לינק ללקוח"}
+              </button>
+            )
           )}
           <button onClick={()=>setPhase("list")}
             style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",color:WH,borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:12,fontWeight:700}}>
-            📂 גאנטים שמורים {savedGantts.length>1&&<span style={{background:RD,borderRadius:"50%",padding:"0 5px",fontSize:10,marginRight:4}}>{savedGantts.length}</span>}
-          </button>
-          <button onClick={clearSaved}
-            style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",color:WH,borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:12,fontWeight:600}}>
-            🗑️ מחק ואפס
+            📂 גאנטים שמורים
           </button>
         </div>
       </div>
