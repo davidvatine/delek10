@@ -8,7 +8,7 @@ const DV_GRAD2="linear-gradient(135deg,#6D28D9 0%,#7C3AED 100%)";
 
 const DAVID_LOGO=`data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'><rect width='120' height='40' rx='8' fill='%234A1D96'/><text x='60' y='27' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='14' fill='white'>DAVID VATINE</text></svg>`;
 
-const APP_VERSION="v7.0";
+const APP_VERSION="v7.1";
 const APP_LINK="https://onelink.to/ten";
 const CAREER_LINK="https://ten.co.il/career";
 const WHATSAPP="050-0000000";
