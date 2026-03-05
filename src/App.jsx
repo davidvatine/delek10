@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const BL="#1565C0", BLl="#1E88E5", RD="#D32F2F", WH="#fff";
+const BL="#FFFF00", BLl="#1E88E5", RD="#D32F2F", WH="#fff";
 const BG="#EEF2F7", BR="#CFD8DC", DK="#1A2733";
 const APP_LINK    = "https://ten.onelink.me/Cdb1/e3lfcju1";
 const CAREER_LINK = "https://www.10ten.co.il/%D7%A7%D7%A8%D7%99%D7%99%D7%A8%D7%94";
