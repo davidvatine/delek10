@@ -932,21 +932,12 @@ export default function TenGanttAI(){
     const approved = posts.filter(p=>clientFeedback[p.id]?.approved).map(p=>p.type);
     const notes = posts.filter(p=>clientFeedback[p.id]?.note).map(p=>({type:p.type, note:clientFeedback[p.id].note}));
     const promos = posts.filter(p=>p.tk==="promo"&&clientFeedback[p.id]?.promoText).map(p=>({num:p.num, text:clientFeedback[p.id].promoText}));
-    const summary = [
-      clientName ? `מאת: ${clientName}` : "",
-      `
-✅ פוסטים מאושרים (${approved.length}):
-${approved.join(", ")||"אין"}`,
-      notes.length ? `
-✏️ הערות:
-${notes.map(n=>`• ${n.type}: ${n.note}`).join("
-")}` : "",
-      promos.length ? `
-📦 מבצעים:
-${promos.map(p=>`• פוסט ${p.num}: ${p.text}`).join("
-")}` : "",
-    ].filter(Boolean).join("
-");
+    const summaryParts = [];
+    if(clientName) summaryParts.push("מאת: " + clientName);
+    summaryParts.push("\n✅ פוסטים מאושרים (" + approved.length + "):\n" + (approved.join(", ")||"אין"));
+    if(notes.length) summaryParts.push("\n✏️ הערות:\n" + notes.map(n=>"• " + n.type + ": " + n.note).join("\n"));
+    if(promos.length) summaryParts.push("\n📦 מבצעים:\n" + promos.map(p=>"• פוסט " + p.num + ": " + p.text).join("\n"));
+    const summary = summaryParts.join("\n");
     await addComment(shareId, "summary", "סיכום", summary, clientName, window.location.href);
     setSending(false);
     setSent(true);
