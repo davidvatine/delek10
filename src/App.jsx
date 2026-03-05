@@ -577,8 +577,8 @@ function ExportModal({posts, month, year, c, onClose}){
 }
 
 /* ─── POST CARD ───────────────────────────────────────────────────── */
-function PostCard({post, c, month, ne, onUpdate}){
-  const [open, setOpen] = useState(false);
+function PostCard({post, c, month, ne, onUpdate, isClient=false}){
+  const [open, setOpen] = useState(true); // always open by default
   const [editing, setEditing] = useState(false);
   const [editVal, setEditVal] = useState(post.copy||"");
   const [notes, setNotes] = useState("");
@@ -586,6 +586,7 @@ function PostCard({post, c, month, ne, onUpdate}){
   const [loading, setLoading] = useState(false);
   const [valResult, setValResult] = useState(post.val||"");
   const [valLoading, setValLoading] = useState(false);
+  const [imgData, setImgData] = useState(post.image||null); // base64 image
 
   // sync editVal when post.copy changes externally
   useEffect(()=>{ setEditVal(post.copy||""); },[post.copy]);
@@ -593,9 +594,10 @@ function PostCard({post, c, month, ne, onUpdate}){
   const status = post.copy ? "done" : post.tk==="promo"&&!post.promoText ? "empty" : "wait";
 
   async function gen(n){
+    if(isClient) return; // clients cannot regenerate
     setLoading(true);
     let p="";
-    if(post.tk==="monday")     p=pMonday(post.date,c,ne,n||notes);
+    if(post.tk==="monday")       p=pMonday(post.date,c,ne,n||notes);
     else if(post.tk==="holiday") p=pHoliday(post.date,c,ne,n||notes);
     else if(post.tk==="fun")     p=pFun(post.date,c,ne,n||notes);
     else if(post.tk==="recruit") p=pRecruit(post.date,c,ne,n||notes);
@@ -608,6 +610,7 @@ function PostCard({post, c, month, ne, onUpdate}){
   }
 
   async function validate(){
+    if(isClient) return;
     setValLoading(true);
     const r=await callAI(`בדוק פוסט זה של Ten בקצרה:
 ---
@@ -620,9 +623,22 @@ ${post.copy||editVal}
     setValLoading(false);
   }
 
+  function handleImageUpload(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const data = ev.target.result;
+      setImgData(data);
+      onUpdate({...post, image: data});
+    };
+    reader.readAsDataURL(file);
+  }
+
   return (
     <div style={{background:WH,borderRadius:12,border:`1px solid ${BR}`,marginBottom:10,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,0.05)",direction:"rtl"}}>
-      <div onClick={()=>setOpen(o=>!o)} style={{padding:"11px 16px",display:"flex",alignItems:"center",gap:9,cursor:"pointer",
+      {/* Header - always visible */}
+      <div style={{padding:"11px 16px",display:"flex",alignItems:"center",gap:9,
         background:status==="done"?"#F9FFFE":status==="empty"?"#FFF8F8":"#FAFBFC"}}>
         <span style={{fontWeight:800,color:BL,fontSize:13,minWidth:24}}>#{post.num}</span>
         <span style={{fontWeight:700,color:DK,fontSize:13}}>{post.date?`${fmt(post.date)} | ${dn(post.date)}`:"תאריך לפי מבצע"}</span>
@@ -632,14 +648,20 @@ ${post.copy||editVal}
           {status==="done"?"✅ מוכן":status==="empty"?"⭕ ממתין למבצע":"⏳"}
         </span>
         {loading && <span style={{fontSize:11,color:BL,fontWeight:700}}>מייצר...</span>}
-        <span style={{color:"#90A4AE",fontSize:11}}>{open?"▲":"▼"}</span>
       </div>
 
-      {open && (
-        <div style={{borderTop:`1px solid ${BR}`}}>
-          {post.tk==="promo" && (
-            <div style={{padding:"10px 16px",background:"#FFFDE7",borderBottom:`1px solid ${BR}`}}>
-              <div style={{fontSize:12,fontWeight:700,color:"#F57F17",marginBottom:5}}>📦 פרטי המבצע</div>
+      {/* Body - always open */}
+      <div style={{borderTop:`1px solid ${BR}`}}>
+        {/* PROMO section */}
+        {post.tk==="promo" && (
+          <div style={{padding:"10px 16px",background:"#FFFDE7",borderBottom:`1px solid ${BR}`}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#F57F17",marginBottom:5}}>📦 פרטי המבצע</div>
+            {isClient ? (
+              // Client: only fill promo details, no generate button
+              <input value={promoIn} onChange={e=>{ setPromoIn(e.target.value); onUpdate({...post,promoText:e.target.value}); }}
+                placeholder="פרטי המבצע — מוצר, מחיר, תוקף..."
+                style={{width:"100%",padding:"8px 10px",borderRadius:8,border:`1px solid ${BR}`,fontSize:13,fontFamily:"Arial",boxSizing:"border-box"}}/>
+            ) : (
               <div style={{display:"flex",gap:8}}>
                 <input value={promoIn} onChange={e=>setPromoIn(e.target.value)}
                   placeholder="למשל: קומפרסור 2 בוכנות ב-229 ש'ח, באפליקציה 199 ש'ח, עד 30.4.26"
@@ -650,27 +672,18 @@ ${post.copy||editVal}
                   {loading?"...":"צור פוסט"}
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          {post.copy ? (
-            <div style={{display:"grid",gridTemplateColumns:"1fr 296px"}}>
-              <div style={{padding:"14px 18px",borderLeft:`1px solid ${BR}`}}>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-                  <span style={{fontSize:11,fontWeight:800,color:BL}}>📝 טקסט לפוסט</span>
-                  <button onClick={()=>{ if(editing){ setEditing(false); onUpdate({...post,copy:editVal}); } else { setEditing(true); } }}
-                    style={{marginRight:"auto",background:"none",border:`1px solid ${BL}`,color:BL,borderRadius:6,padding:"3px 10px",cursor:"pointer",fontSize:11,fontWeight:700}}>
-                    {editing?"💾 שמור":"✏️ ערוך"}
-                  </button>
-                </div>
-                {editing ? (
-                  <textarea value={editVal} onChange={e=>setEditVal(e.target.value)}
-                    style={{width:"100%",height:210,padding:"10px 12px",borderRadius:8,border:`2px solid ${BL}`,fontSize:13,lineHeight:1.75,resize:"vertical",boxSizing:"border-box",fontFamily:"Arial",direction:"rtl"}}/>
-                ) : (
-                  <div style={{fontSize:13.5,lineHeight:1.8,color:DK,whiteSpace:"pre-wrap",background:"#FAFBFC",padding:"10px 13px",borderRadius:8,border:`1px solid ${BR}`,minHeight:150}}>
-                    {post.copy}
-                  </div>
-                )}
+        {post.copy ? (
+          <div style={{display:"grid",gridTemplateColumns:isClient?"1fr":"1fr 240px"}}>
+            <div style={{padding:"14px 18px",borderLeft:isClient?"none":`1px solid ${BR}`}}>
+              <div style={{fontSize:13.5,lineHeight:1.8,color:DK,whiteSpace:"pre-wrap",background:"#FAFBFC",padding:"10px 13px",borderRadius:8,border:`1px solid ${BR}`,minHeight:100}}>
+                {post.copy}
+              </div>
+              {/* Manager-only tools */}
+              {!isClient && (
                 <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap",alignItems:"center"}}>
                   <input value={notes} onChange={e=>setNotes(e.target.value)}
                     placeholder="הערה לייצור מחדש..."
@@ -678,6 +691,10 @@ ${post.copy||editVal}
                   <button onClick={()=>gen(notes)} disabled={loading}
                     style={{background:RD,color:WH,border:"none",borderRadius:7,padding:"5px 12px",cursor:"pointer",fontSize:11,fontWeight:700,opacity:loading?0.5:1}}>
                     {loading?"...":"↺ מחדש"}
+                  </button>
+                  <button onClick={()=>{ if(editing){ setEditing(false); onUpdate({...post,copy:editVal}); } else { setEditing(true); } }}
+                    style={{background:"none",border:`1px solid ${BL}`,color:BL,borderRadius:7,padding:"5px 10px",cursor:"pointer",fontSize:11,fontWeight:700}}>
+                    {editing?"💾 שמור":"✏️ ערוך"}
                   </button>
                   <button onClick={()=>navigator.clipboard.writeText(post.copy)}
                     style={{background:"none",border:`1px solid ${BL}`,color:BL,borderRadius:7,padding:"5px 10px",cursor:"pointer",fontSize:11,fontWeight:700}}>
@@ -688,70 +705,114 @@ ${post.copy||editVal}
                     {valLoading?"...":"🔍 בדוק"}
                   </button>
                 </div>
-                {valResult && (
-                  <div style={{marginTop:8,background:"#F3E5F5",border:"1px solid #CE93D8",borderRadius:8,padding:"9px 12px",fontSize:11.5,lineHeight:1.7,color:"#4A148C",whiteSpace:"pre-wrap"}}>
-                    {valResult}
-                  </div>
-                )}
-              </div>
-              <div style={{padding:"14px",display:"flex",flexDirection:"column",alignItems:"center",gap:10,background:"#F0F4F8"}}>
-                <span style={{fontSize:11,fontWeight:800,color:RD,alignSelf:"flex-start"}}>🎨 ויז׳ואל</span>
-                <TenVisual type={post.type} c={c}/>
-                <span style={{fontSize:10,color:"#90A4AE",textAlign:"center"}}>להמחשה בלבד</span>
-              </div>
-            </div>
-          ) : (
-            <div style={{padding:"20px",textAlign:"center"}}>
-              {post.tk!=="promo" && (
-                loading
-                  ? <div style={{color:BL,fontWeight:700,fontSize:13}}>⏳ מייצר...</div>
-                  : <div style={{color:"#90A4AE",fontSize:13}}>⏳ ממתין לייצור אוטומטי</div>
+              )}
+              {!isClient && editing && (
+                <textarea value={editVal} onChange={e=>setEditVal(e.target.value)}
+                  style={{width:"100%",height:180,padding:"10px 12px",borderRadius:8,border:`2px solid ${BL}`,fontSize:13,lineHeight:1.75,resize:"vertical",boxSizing:"border-box",fontFamily:"Arial",direction:"rtl",marginTop:8}}/>
+              )}
+              {!isClient && valResult && (
+                <div style={{marginTop:8,background:"#F3E5F5",border:"1px solid #CE93D8",borderRadius:8,padding:"9px 12px",fontSize:11.5,lineHeight:1.7,color:"#4A148C",whiteSpace:"pre-wrap"}}>
+                  {valResult}
+                </div>
               )}
             </div>
-          )}
-        </div>
-      )}
+            {/* Image panel - manager only */}
+            {!isClient && (
+              <div style={{padding:"14px",display:"flex",flexDirection:"column",alignItems:"center",gap:10,background:"#F0F4F8"}}>
+                <span style={{fontSize:11,fontWeight:800,color:RD,alignSelf:"flex-start"}}>🖼️ תמונה לפוסט</span>
+                {imgData ? (
+                  <div style={{position:"relative",width:"100%"}}>
+                    <img src={imgData} alt="post" style={{width:"100%",borderRadius:10,display:"block",boxShadow:"0 4px 12px rgba(0,0,0,0.15)"}}/>
+                    <button onClick={()=>{ setImgData(null); onUpdate({...post,image:null}); }}
+                      style={{position:"absolute",top:6,left:6,background:"rgba(0,0,0,0.55)",color:WH,border:"none",borderRadius:"50%",width:24,height:24,cursor:"pointer",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",width:"100%",minHeight:140,border:"2px dashed #90A4AE",borderRadius:10,cursor:"pointer",gap:8,background:"white",transition:"border-color 0.2s"}}
+                    onDragOver={e=>e.preventDefault()}>
+                    <span style={{fontSize:28}}>📤</span>
+                    <span style={{fontSize:11,color:"#78909C",textAlign:"center",fontWeight:600}}>העלה תמונה מעוצבת<br/><span style={{color:"#B0BEC5",fontWeight:400}}>לחץ או גרור לכאן</span></span>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} style={{display:"none"}}/>
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{padding:"20px",textAlign:"center"}}>
+            {post.tk!=="promo" && (
+              loading
+                ? <div style={{color:BL,fontWeight:700,fontSize:13}}>⏳ מייצר...</div>
+                : <div style={{color:"#90A4AE",fontSize:13}}>⏳ ממתין לייצור אוטומטי</div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-/* ─── COMMENT BOX (client view) ─────────────────────────────────── */
-function CommentBox({ganttId, postId, postType, ganttUrl, existingComments}){
-  const [text, setText] = useState("");
-  const [name, setName] = useState("");
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const myComments = existingComments.filter(c=>c.post_id===postId);
-
-  async function send(){
-    if(!text.trim()) return;
-    setSending(true);
-    const ok = await addComment(ganttId, postId, postType, text.trim(), name.trim(), ganttUrl);
-    if(ok){ setSent(true); setText(""); setTimeout(()=>setSent(false),4000); }
-    setSending(false);
-  }
+/* ─── CLIENT POST ROW (approval + note per post, send all at end) ── */
+function ClientPostRow({post, feedback, onChange}){
+  // feedback = { approved: bool, note: string, promoText: string }
+  const fb = feedback || {approved:false, note:"", promoText: post.promoText||""};
 
   return (
-    <div style={{marginTop:12,borderTop:"1px solid #E3F2FD",paddingTop:12}}>
-      {myComments.length>0 && (
-        <div style={{marginBottom:10}}>
-          {myComments.map((c,i)=>(
-            <div key={i} style={{background:"#FFF8E1",borderRadius:8,padding:"8px 12px",marginBottom:6,fontSize:12,border:"1px solid #FFE082"}}>
-              <span style={{fontWeight:700,color:"#E65100"}}>{c.author_name||"לקוח"}: </span>
-              <span style={{color:"#333"}}>{c.comment}</span>
-            </div>
-          ))}
+    <div style={{background:WH,borderRadius:12,border:`1px solid ${fb.approved?"#A5D6A7":"#CFD8DC"}`,
+      marginBottom:10,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,0.05)",direction:"rtl",
+      borderRight:`4px solid ${fb.approved?"#4CAF50":"#CFD8DC"}`}}>
+      {/* Header */}
+      <div style={{padding:"11px 16px",display:"flex",alignItems:"center",gap:9,
+        background:fb.approved?"#F1F8E9":"#FAFBFC"}}>
+        <span style={{fontWeight:800,color:BL,fontSize:13,minWidth:24}}>#{post.num}</span>
+        <span style={{fontWeight:700,color:"#37474F",fontSize:13}}>
+          {post.date?`${fmt(post.date)} | ${dn(post.date)}`:"תאריך לפי מבצע"}
+        </span>
+        <Badge type={post.type}/>
+        <div style={{marginRight:"auto",display:"flex",gap:8}}>
+          <button onClick={()=>onChange({...fb,approved:true})}
+            style={{background:fb.approved?"#4CAF50":"white",color:fb.approved?"white":"#4CAF50",
+              border:"2px solid #4CAF50",borderRadius:7,padding:"4px 14px",cursor:"pointer",fontSize:12,fontWeight:800}}>
+            ✅ מאושר
+          </button>
+          <button onClick={()=>onChange({...fb,approved:false})}
+            style={{background:!fb.approved&&fb.note?"#FFF3E0":"white",color:"#E65100",
+              border:"2px solid #E65100",borderRadius:7,padding:"4px 14px",cursor:"pointer",fontSize:12,fontWeight:700}}>
+            ✏️ יש הערה
+          </button>
+        </div>
+      </div>
+
+      {/* Post text */}
+      {post.copy && (
+        <div style={{padding:"10px 16px",fontSize:13,lineHeight:1.8,color:"#37474F",
+          whiteSpace:"pre-wrap",background:"#FAFBFC",borderTop:"1px solid #ECEFF1"}}>
+          {post.copy}
         </div>
       )}
-      <div style={{fontSize:12,fontWeight:700,color:"#1565C0",marginBottom:6}}>💬 השאר הערה לפוסט זה</div>
-      <input value={name} onChange={e=>setName(e.target.value)} placeholder="שמך (אופציונלי)"
-        style={{width:"100%",padding:"7px 10px",borderRadius:6,border:"1px solid #CFD8DC",fontSize:12,marginBottom:6,boxSizing:"border-box",fontFamily:"Arial"}}/>
-      <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="הערה, בקשת שינוי, או אישור..."
-        style={{width:"100%",height:60,padding:"7px 10px",borderRadius:6,border:"1px solid #CFD8DC",fontSize:12,resize:"vertical",boxSizing:"border-box",fontFamily:"Arial"}}/>
-      <button onClick={send} disabled={sending||!text.trim()}
-        style={{marginTop:6,background:"#1565C0",color:"#fff",border:"none",borderRadius:6,padding:"7px 18px",fontSize:12,fontWeight:700,cursor:"pointer",opacity:sending?0.7:1}}>
-        {sent?"✅ נשלח!":sending?"שולח...":"שלח הערה"}
-      </button>
+
+      {/* Promo input for client */}
+      {post.tk==="promo" && (
+        <div style={{padding:"10px 16px",background:"#FFFDE7",borderTop:"1px solid #FFE082"}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#F57F17",marginBottom:5}}>📦 פרטי המבצע</div>
+          <input value={fb.promoText||""} onChange={e=>onChange({...fb,promoText:e.target.value})}
+            placeholder="פרטי המבצע — מוצר, מחיר, תוקף..."
+            style={{width:"100%",padding:"8px 10px",borderRadius:8,border:"1px solid #FFE082",
+              fontSize:13,fontFamily:"Arial",boxSizing:"border-box"}}/>
+        </div>
+      )}
+
+      {/* Note field - only show when "יש הערה" clicked */}
+      {!fb.approved && (
+        <div style={{padding:"8px 16px 12px",borderTop:"1px solid #ECEFF1"}}>
+          <textarea value={fb.note||""} onChange={e=>onChange({...fb,note:e.target.value})}
+            placeholder="מה לשנות? הערה לצוות..."
+            style={{width:"100%",height:56,padding:"7px 10px",borderRadius:7,
+              border:"1px solid #FFCCBC",fontSize:12,resize:"vertical",
+              boxSizing:"border-box",fontFamily:"Arial",background:"#FFF8F6"}}/>
+        </div>
+      )}
     </div>
   );
 }
@@ -772,8 +833,12 @@ export default function TenGanttAI(){
   const [shareId, setShareId] = useState(null);      // current gantt's share ID
   const [shareLoading, setShareLoading] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
-  const [isClientView, setIsClientView] = useState(false); // viewing as client
-  const [clientComments, setClientComments] = useState([]); // comments from supabase
+  const [isClientView, setIsClientView] = useState(false);
+  const [clientComments, setClientComments] = useState([]);
+  const [clientFeedback, setClientFeedback] = useState({}); // {postId: {approved, note, promoText}}
+  const [clientName, setClientName] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const c = getCtx(month);
   const AUTO = ["monday","holiday","fun","recruit"];
@@ -859,6 +924,31 @@ export default function TenGanttAI(){
   function deleteGantt(g){
     deleteGanttFromStorage(g.year, g.month);
     setSavedGantts(listSavedGantts());
+  }
+
+  async function sendClientFeedback(){
+    setSending(true);
+    const approved = posts.filter(p=>clientFeedback[p.id]?.approved).map(p=>p.type);
+    const notes = posts.filter(p=>clientFeedback[p.id]?.note).map(p=>({type:p.type, note:clientFeedback[p.id].note}));
+    const promos = posts.filter(p=>p.tk==="promo"&&clientFeedback[p.id]?.promoText).map(p=>({num:p.num, text:clientFeedback[p.id].promoText}));
+    const summary = [
+      clientName ? `מאת: ${clientName}` : "",
+      `
+✅ פוסטים מאושרים (${approved.length}):
+${approved.join(", ")||"אין"}`,
+      notes.length ? `
+✏️ הערות:
+${notes.map(n=>`• ${n.type}: ${n.note}`).join("
+")}` : "",
+      promos.length ? `
+📦 מבצעים:
+${promos.map(p=>`• פוסט ${p.num}: ${p.text}`).join("
+")}` : "",
+    ].filter(Boolean).join("
+");
+    await addComment(shareId, "summary", "סיכום", summary, clientName, window.location.href);
+    setSending(false);
+    setSent(true);
   }
 
   async function shareGantt(){
@@ -1189,22 +1279,41 @@ export default function TenGanttAI(){
         </div>
 
         <div style={{fontSize:12,color:"#78909C",marginBottom:8}}>לחץ על כל שורה לפתיחת הפוסט המלא</div>
-        {posts.map(p=>(
-            <div key={p.id}>
-              <PostCard post={p} c={c} month={month} ne={ne} onUpdate={isClientView ? ()=>{} : upd}/>
-              {isClientView && shareId && (
-                <div style={{marginTop:-8,marginBottom:14,background:"#fff",borderRadius:"0 0 12px 12px",padding:"0 18px 16px",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
-                  <CommentBox
-                    ganttId={shareId}
-                    postId={p.id}
-                    postType={p.type}
-                    ganttUrl={window.location.href}
-                    existingComments={clientComments}
-                  />
+        {isClientView ? (
+            // ── CLIENT VIEW: approval + notes per post, one send at end ──
+            <>
+              <div style={{background:"white",borderRadius:10,padding:"12px 16px",marginBottom:14,fontSize:13,color:"#37474F",border:"1px solid #CFD8DC"}}>
+                <strong>איך זה עובד:</strong> עבור כל פוסט — לחץ ✅ מאושר או ✏️ יש הערה. בסוף לחץ <strong>שלח</strong>.
+              </div>
+              <input value={clientName} onChange={e=>setClientName(e.target.value)}
+                placeholder="שמך (אופציונלי)"
+                style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1px solid #CFD8DC",fontSize:13,marginBottom:12,boxSizing:"border-box",fontFamily:"Arial"}}/>
+              {posts.map(p=>(
+                <ClientPostRow key={p.id} post={p}
+                  feedback={clientFeedback[p.id]}
+                  onChange={fb=>setClientFeedback(prev=>({...prev,[p.id]:fb}))}/>
+              ))}
+              {sent ? (
+                <div style={{background:"#E8F5E9",border:"1px solid #A5D6A7",borderRadius:12,padding:"20px",textAlign:"center",marginTop:8}}>
+                  <div style={{fontSize:28,marginBottom:8}}>🎉</div>
+                  <div style={{fontWeight:800,color:"#1B5E20",fontSize:16}}>הפידבק נשלח בהצלחה!</div>
+                  <div style={{color:"#388E3C",fontSize:13,marginTop:4}}>הצוות יקבל את ההערות שלך בקרוב</div>
                 </div>
+              ) : (
+                <button onClick={sendClientFeedback} disabled={sending}
+                  style={{width:"100%",background:BL,color:WH,border:"none",borderRadius:10,
+                    padding:"15px 0",fontSize:16,fontWeight:900,cursor:"pointer",marginTop:8,
+                    boxShadow:`0 4px 16px ${BL}55`,opacity:sending?0.7:1}}>
+                  {sending?"⏳ שולח...":"📨 שלח פידבק לצוות"}
+                </button>
               )}
-            </div>
-          ))}
+            </>
+          ) : (
+            // ── MANAGER VIEW: full PostCard with all tools ──
+            posts.map(p=>(
+              <PostCard key={p.id} post={p} c={c} month={month} ne={ne} onUpdate={upd} isClient={false}/>
+            ))
+          )}
 
         <div style={{background:"#E8EAF6",borderRadius:10,padding:"13px 18px",fontSize:12,color:"#283593",border:"1px solid #9FA8DA",marginTop:6,lineHeight:1.8}}>
           <strong>📤 איך לשתף ללקוח:</strong><br/>
