@@ -1,75 +1,71 @@
-import { APP_LINK, CAREER_LINK, WHATSAPP, DISC, MHE } from "./constants";
-import { fmt, dn } from "./utils";
+import { APP_LINK, CAREER_LINK, WHATSAPP, DISC, MHE } from "./constants.js";
+import { fmt, dn } from "./utils.js";
 
-export const pMonday = (d, c, ne, notes) =>
-  `אתה קופירייטר בכיר של רשת תחנות דלק Ten בישראל.
-דוגמת פוסט שני חסכוני מאושר:
----
-החלטות קטנות לשבוע גדול. 💸
-יש החלטות שפשוט עושות לכם את השבוע, כמו לבחור את הפלייליסט הנכון בבוקר, ולזכור שהיום שני חסכוני!
-פותחים את השבוע בהחלטה הכי חכמה: באים לתדלק בתחנות Ten ביום שני.
-⛽ משלמים באפליקציה 📲 או עם כרטיס מועדון VIP ונהנים מ-40 אגורות חיסכון לכל ליטר בנזין*.
-זה פשוט. זה חכם. זה Ten.
-עוד אין לכם את האפליקציה? 👇 ${APP_LINK}
+/* ─── LANGUAGE RULES ──────────────────────────────────────────────── */
+const LANG_RULES=`חוקי שפה: עברית תקנית, ללא "אתה/את" בודד — פנה לרבים "אתם", ריבוי אחרי מספר "5 דקות", מקף ארוך — לא מקף קצר.`;
+
+/* ─── PROMPT TEMPLATES ────────────────────────────────────────────── */
+export const pMonday=(d,c,ne,notes)=>`אתה קופירייטר בכיר של Ten.
+דוגמאות: "יום שני מגיע מהר... אבל אתם מגיעים מוכנים! ⛽ בכל יום שני — 40 אגורות חיסכון לכל ליטר דלק בתחנות Ten."
+כתוב פוסט שני חסכוני לתאריך ${fmt(d)} (${dn(d)}).
+עונה: ${c.season} | ${c.weather} | מצב: ${ne||c.news}
+חגים קרובים: ${c.holidays.filter(h=>Math.abs(h.d-d.getDate())<=8).map(h=>h.n).join(", ")||"אין"}
+${notes?`הערות: ${notes}`:""}
+${LANG_RULES}
+אורך: 110-160 מילים כולל דיסקליימר. CTA עם לינק ${APP_LINK}.
 ${DISC}
----
-כתוב פוסט שני חסכוני חדש לתאריך ${fmt(d)} (${dn(d)}).
-עונה: ${c.season} | ${c.weather} | מצב: ${ne || c.news}
-חגים קרובים: ${c.holidays.filter(h => Math.abs(h.d - d.getDate()) <= 8).map(h => h.n).join(", ") || "אין"}
-${notes ? `הערות: ${notes}` : ""}
-חוקים: אסור מקף ארוך (—), גוף שני רבים, 110-160 מילים כולל דיסקליימר, CTA עם לינק.
 כתוב רק הטקסט הסופי.`;
 
-export const pHoliday = (d, c, ne, notes) => {
-  const h = c.holidays.filter(hh => Math.abs(hh.d - d.getDate()) <= 10);
+export const pHoliday=(d,c,ne,notes)=>{
+  const h=c.holidays.filter(hh=>Math.abs(hh.d-d.getDate())<=10);
   return `אתה קופירייטר בכיר של Ten.
-דוגמה: "בדרך לנטיעות עוצרים ב... Ten כמובן!!! ט"ו בשבט הגיע, זה הזמן לצאת לטבע. לפני שאתם נוטעים שורשים בפקקים, עוצרים ב-Ten! 🌳 ממלאים מיכל, מצטיידים בחטיפים, שתייה, קפה ויוצאים לנשום קצת ירוק."
 כתוב פוסט חגי לתאריך ${fmt(d)} (${dn(d)}).
-חגים: ${h.length ? h.map(hh => hh.n).join(", ") : "ללא חג, כתוב על המצב הנוכחי"}
-עונה: ${c.season} | מצב: ${ne || c.news}
-${notes ? `הערות: ${notes}` : ""}
-חוקים: אסור מקף ארוך (—), 80-130 מילים, CTA לתחנה.
+חגים: ${h.length?h.map(hh=>hh.n).join(", "):"ללא חג, כתוב על המצב הנוכחי"}
+עונה: ${c.season} | מצב: ${ne||c.news}
+${notes?`הערות: ${notes}`:""}
+${LANG_RULES}
+אורך: 80-130 מילים. CTA לתחנה.
 כתוב רק הטקסט הסופי.`;
 };
 
-export const pFun = (d, c, ne, notes) =>
-  `אתה קופירייטר בכיר של Ten.
-דוגמאות: "זה קורה לכולם, נכון?... נכון?? 👀 תייגו חבר/ה שרק נכנסו לתדלק ויצאו עם חצי חנות."
-"לפני תדלוק ב-Ten VS אחרי תדלוק ב-Ten. ככה האוטו מרגיש."
+export const pFun=(d,c,ne,notes)=>`אתה קופירייטר בכיר של Ten.
+דוגמאות: "זה קורה לכולם, נכון?... 👀 תייגו חבר/ה שנכנסו לתדלק ויצאו עם חצי חנות."
 כתוב פוסט מצחיק/אפליקציה לתאריך ${fmt(d)} (${dn(d)}).
-עונה: ${c.season} | מצב: ${ne || c.news}
-${notes ? `הערות: ${notes}` : ""}
-חוקים: אסור מקף ארוך (—), הוק חזק, 70-120 מילים, CTA תיוג/תגובה/אפליקציה ${APP_LINK}.
+עונה: ${c.season} | מצב: ${ne||c.news}
+${notes?`הערות: ${notes}`:""}
+${LANG_RULES}
+אורך: 70-120 מילים. CTA תיוג/תגובה/אפליקציה ${APP_LINK}.
 כתוב רק הטקסט הסופי.`;
 
-export const pRecruit = (d, c, ne, notes) =>
-  `אתה קופירייטר בכיר של Ten.
-דוגמה: "שנה חדשה, זמן מצוין לעבודה חדשה! מה תקבלו? 🔹 שכר הוגן 🔹 קידום מהיר 🔹 סביבה צעירה 🔹 הטבות דלק וחנות. יש לנו מאצ'? שלחו ווטסאפ למספר ${WHATSAPP} מגיל 18. אתר: ${CAREER_LINK}"
+export const pRecruit=(d,c,ne,notes)=>`אתה קופירייטר בכיר של Ten.
 כתוב פוסט דרושים לתאריך ${fmt(d)} (${dn(d)}).
-עונה: ${c.season} | מצב: ${ne || c.news}
-${notes ? `הערות: ${notes}` : ""}
-חוקים: אסור מקף ארוך (—), פתיחה יצירתית, 4 הטבות עם אמוג'י, CTA ווטסאפ+אתר, 120-150 מילים.
+עונה: ${c.season} | מצב: ${ne||c.news}
+${notes?`הערות: ${notes}`:""}
+${LANG_RULES}
+אורך: 120-150 מילים. פתיחה יצירתית, 4 הטבות עם אמוג'י, CTA ווטסאפ ${WHATSAPP} + אתר ${CAREER_LINK}.
 כתוב רק הטקסט הסופי.`;
 
-export const pPromo = (pt, m, notes) =>
-  `אתה קופירייטר בכיר של Ten.
-דוגמה: "אל תצאו לדרך בלעדיו! 🚫🚗 עכשיו ב-Ten: בוסטר התנעה 12,000 mAh רק ב-279 ש'ח. משלמים באפליקציה? 259 ש'ח! 🤩 ${APP_LINK}. **בתוקף עד [תאריך] או עד גמר המלאי, אין כפל מבצעים."
+export const pPromo=(pt,m,notes)=>`אתה קופירייטר בכיר של Ten.
 כתוב פוסט מבצע לחודש ${MHE[m]}.
 המבצע: ${pt}
-${notes ? `הערות: ${notes}` : ""}
-חוקים: אסור מקף ארוך (—), פתיחה חזקה, מחיר ברור, לינק אפליקציה, דיסקליימר מלא עם תאריך, 100-150 מילים.
+${notes?`הערות: ${notes}`:""}
+חוק אבסולוטי: כתוב רק על המוצר/מבצע שצוין. אסור להמציא פרטים.
+${LANG_RULES}
+אורך: 100-150 מילים. פתיחה חזקה, מחיר ברור, לינק ${APP_LINK}, דיסקליימר: ${DISC}
 כתוב רק הטקסט הסופי.`;
 
-export async function callAI(prompt) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 900,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  const d = await r.json();
-  return (d.content?.[0]?.text || "").trim();
+/* ─── LANG CHECK ──────────────────────────────────────────────────── */
+const LANG_CHECK_PROMPT=(text)=>`אתה עורך לשון עברי. תקן רק שגיאות דקדוק — ריבוי אחרי מספר, גוף שני לרבים. אל תשנה סגנון, אמוג'י, קישורים. אם אין שגיאות — החזר כמות שהוא. החזר רק הטקסט המתוקן.\nטקסט:\n${text}`;
+
+/* ─── CALL AI ─────────────────────────────────────────────────────── */
+export async function callAI(prompt,skipCheck=false){
+  const r=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});
+  if(!r.ok)throw new Error(`API error: ${r.status}`);
+  const d=await r.json();const text=(d.text||"").trim();
+  if(skipCheck||!text)return text;
+  try{
+    const r2=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:LANG_CHECK_PROMPT(text)})});
+    if(r2.ok){const d2=await r2.json();return(d2.text||text).trim();}
+  }catch(e){}
+  return text;
 }

@@ -1,76 +1,77 @@
-import { DHE } from "./constants";
+import { MD, DHE, MHE, STORAGE_KEY, GANTT_LIST_KEY, ganttKey, SUPABASE_URL, SUPABASE_KEY } from "./constants.js";
 
-export function getMondays(y, m) {
-  const r = [];
-  const d = new Date(y, m - 1, 1);
-  while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
-  while (d.getMonth() === m - 1) {
-    r.push(new Date(d));
-    d.setDate(d.getDate() + 7);
-  }
-  return r;
+/* ─── CONTEXT ─────────────────────────────────────────────────────── */
+export function getCtx(month){ return MD[month]||MD[1]; }
+
+/* ─── DATE UTILS ──────────────────────────────────────────────────── */
+export function fmt(d){ return d?`${d.getDate()}.${d.getMonth()+1}`:""; }
+export function dn(d){ return d?DHE[d.getDay()]:""; }
+export function pickDate(year,month,day){ return new Date(year,month-1,day); }
+
+export function getMondays(year,month){
+  const mondays=[];const d=new Date(year,month-1,1);
+  while(d.getMonth()===month-1){if(d.getDay()===1)mondays.push(new Date(d));d.setDate(d.getDate()+1);}
+  return mondays;
 }
 
-export function fmt(d) {
-  return d ? `${d.getDate()}.${d.getMonth() + 1}.${String(d.getFullYear()).slice(2)}` : "—";
+/* ─── SCHEDULE BUILDER ────────────────────────────────────────────── */
+export function buildSchedule(year,month){
+  const c=getCtx(month);const mondays=getMondays(year,month);const posts=[];let num=1;
+  mondays.slice(0,4).forEach((mon,i)=>{
+    if(i===0){posts.push({id:`p${num}`,num,tk:"monday",type:"שני חסכוני",date:mon,copy:"",val:"",image:null});num++;}
+    else if(i===1){const hasH=c.holidays.some(h=>Math.abs(h.d-mon.getDate())<=10);posts.push({id:`p${num}`,num,tk:hasH?"holiday":"fun",type:hasH?"חג / אירוע":"מצחיק / אפליקציה",date:mon,copy:"",val:"",image:null});num++;}
+    else if(i===2){posts.push({id:`p${num}`,num,tk:"monday",type:"שני חסכוני",date:mon,copy:"",val:"",image:null});num++;}
+    else if(i===3){posts.push({id:`p${num}`,num,tk:"recruit",type:"דרושים",date:mon,copy:"",val:"",image:null});num++;}
+  });
+  const midDate=pickDate(year,month,14);const hasMidH=c.holidays.some(h=>Math.abs(h.d-14)<=8);
+  posts.push({id:`p${num}`,num,tk:hasMidH?"holiday":"fun",type:hasMidH?"חג / אירוע":"מצחיק / אפליקציה",date:midDate,copy:"",val:"",image:null});num++;
+  for(let i=0;i<4;i++){posts.push({id:`p${num}`,num,tk:"promo",type:"פוסט מבצע",date:null,copy:"",promoText:"",val:"",image:null});num++;}
+  return posts;
 }
 
-export function dn(d) {
-  return d ? DHE[d.getDay()] : "—";
+/* ─── SERIALIZE ───────────────────────────────────────────────────── */
+export function serializePosts(posts){ return posts.map(p=>({...p,date:p.date?p.date.toISOString():null})); }
+export function deserializePosts(posts){ return posts.map(p=>({...p,date:p.date?new Date(p.date):null})); }
+
+/* ─── LOCAL STORAGE ───────────────────────────────────────────────── */
+export function listSavedGantts(){
+  try{const list=JSON.parse(localStorage.getItem(GANTT_LIST_KEY)||"[]");return list.sort((a,b)=>b.year*100+b.month-(a.year*100+a.month));}catch(e){return[];}
+}
+export function saveGanttToStorage(year,month,ne,posts){
+  try{
+    const key=ganttKey(year,month);
+    const data={year,month,ne,posts:serializePosts(posts),savedAt:new Date().toISOString(),doneCount:posts.filter(p=>p.copy).length};
+    localStorage.setItem(key,JSON.stringify(data));
+    const list=listSavedGantts().filter(g=>!(g.year===year&&g.month===month));
+    list.push({year,month,savedAt:data.savedAt,doneCount:data.doneCount});
+    localStorage.setItem(GANTT_LIST_KEY,JSON.stringify(list));
+  }catch(e){}
+}
+export function loadGanttFromStorage(year,month){
+  try{return JSON.parse(localStorage.getItem(ganttKey(year,month))||"null");}catch(e){return null;}
+}
+export function deleteGanttFromStorage(year,month){
+  try{localStorage.removeItem(ganttKey(year,month));const list=listSavedGantts().filter(g=>!(g.year===year&&g.month===month));localStorage.setItem(GANTT_LIST_KEY,JSON.stringify(list));}catch(e){}
 }
 
-export function pickDate(y, m, used, from, to) {
-  for (let i = from; i <= to; i++) {
-    const dt = new Date(y, m - 1, i);
-    if (!used.has(i) && dt.getDay() !== 5 && dt.getDay() !== 6) {
-      used.add(i);
-      return dt;
-    }
-  }
-  return null;
+/* ─── SUPABASE ────────────────────────────────────────────────────── */
+export function makeShareId(year,month){ return `gantt-${year}-${String(month).padStart(2,"0")}-${Math.random().toString(36).slice(2,6)}`; }
+
+export async function saveGanttToSupabase(id,year,month,ne,posts){
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/gantts`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`,"Prefer":"resolution=merge-duplicates"},body:JSON.stringify({id,year,month,ne,posts:serializePosts(posts),updated_at:new Date().toISOString()})});
+    return res.ok||res.status===409;
+  }catch(e){return false;}
 }
-
-export function buildSchedule(y, m) {
-  const mons = getMondays(y, m);
-  const last = new Date(y, m, 0).getDate();
-  const used = new Set();
-  const posts = [];
-
-  const mon1 = mons[0];
-  if (mon1) {
-    used.add(mon1.getDate());
-    posts.push({ id: "mon1", date: mon1, type: "שני חסכוני", tk: "monday" });
-  }
-
-  const hol = pickDate(y, m, used, 4, 12);
-  if (hol) posts.push({ id: "hol", date: hol, type: "חג / אירוע", tk: "holiday" });
-
-  const fun = pickDate(y, m, used, 9, 18);
-  if (fun) posts.push({ id: "fun", date: fun, type: "מצחיק / אפליקציה", tk: "fun" });
-
-  const rec = pickDate(y, m, used, 16, 24);
-  if (rec) posts.push({ id: "rec", date: rec, type: "דרושים", tk: "recruit" });
-
-  const mon2 = mons[mons.length - 1];
-  const last5 = mon2 && !used.has(mon2.getDate()) ? mon2 : pickDate(y, m, used, 22, last);
-  if (last5) {
-    used.add(last5.getDate());
-    posts.push({ id: "mon2", date: last5, type: "שני חסכוני", tk: "monday" });
-  }
-
-  [1, 2, 3, 4].forEach(i =>
-    posts.push({ id: `pr${i}`, date: null, type: "פוסט מבצע", tk: "promo", promoText: "" })
-  );
-
-  return posts
-    .sort((a, b) => (!a.date ? 1 : !b.date ? -1 : a.date - b.date))
-    .map((p, i) => ({ ...p, num: i + 1 }));
+export async function loadGanttFromSupabase(id){
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/gantts?id=eq.${id}&select=*`,{headers:{"apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`}});
+    if(!res.ok)return null;const data=await res.json();return data[0]||null;
+  }catch(e){return null;}
 }
-
-export function serializePosts(posts) {
-  return posts.map(p => ({ ...p, date: p.date ? p.date.toISOString() : null }));
+export async function addComment(ganttId,postId,postType,comment,authorName,ganttUrl){
+  try{await fetch(`${SUPABASE_URL}/rest/v1/comments`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`},body:JSON.stringify({gantt_id:ganttId,post_id:postId,post_type:postType,comment,author_name:authorName||"לקוח",gantt_url:ganttUrl,created_at:new Date().toISOString()})});}catch(e){}
 }
-
-export function deserializePosts(posts) {
-  return posts.map(p => ({ ...p, date: p.date ? new Date(p.date) : null }));
+export async function getComments(ganttId){
+  try{const res=await fetch(`${SUPABASE_URL}/rest/v1/comments?gantt_id=eq.${ganttId}&select=*&order=created_at.desc`,{headers:{"apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`}});if(!res.ok)return[];return await res.json();}catch(e){return[];}
 }
