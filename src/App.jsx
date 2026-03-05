@@ -8,6 +8,7 @@ const WHATSAPP    = "054-3207261";
 const DISC        = `*החיסכון בתשלום באמצעות כרטיס מועדון TenVIP או בתשלום באפליקציית Ten. החיסכון ממחיר בנזין בשירות מלא, כפי שנקבע ע"י מנהל הדלק. החיסכון הינו בתדלוק בשירות עצמי בלבד, אין כפל מבצעים והנחות.`;
 const MHE = ["","ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const DHE = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+const APP_VERSION = "v6.0 — אישור לקוח + העלאת תמונות";
 const STORAGE_KEY = "ten-gantt-v5"; // legacy single-gantt key
 const GANTT_LIST_KEY = "ten-gantt-list-v1"; // list of saved gantt keys
 
@@ -1099,6 +1100,7 @@ ${promos.map(p=>`• פוסט ${p.num}: ${p.text}`).join("
           <div>
             <div style={{color:WH,fontSize:20,fontWeight:900}}>גאנט AI | דלק Ten</div>
             <div style={{color:"rgba(255,255,255,0.8)",fontSize:13}}>9 פוסטים חודשיים | שמירה אוטומטית | ייצוא קל</div>
+            <div style={{color:"rgba(255,255,255,0.5)",fontSize:11,marginTop:2}}>{APP_VERSION}</div>
           </div>
         </div>
         {savedGantts.length > 0 && (
@@ -1183,7 +1185,7 @@ ${promos.map(p=>`• פוסט ${p.num}: ${p.text}`).join("
           <div>
             <div style={{color:WH,fontSize:17,fontWeight:900}}>גאנט {MHE[month]} {year}</div>
             <div style={{color:"rgba(255,255,255,0.75)",fontSize:11,display:"flex",alignItems:"center",gap:8}}>
-              <span>{c.emoji} {c.season} | {doneCount}/{posts.length} מוכנים</span>
+              <span>{c.emoji} {c.season} | {doneCount}/{posts.length} מוכנים | {APP_VERSION}</span>
               {saveStatus==="saving" && <span style={{background:"rgba(255,255,255,0.15)",padding:"1px 8px",borderRadius:10,fontSize:10}}>💾 שומר...</span>}
               {saveStatus==="saved"  && <span style={{background:"rgba(76,175,80,0.4)",padding:"1px 8px",borderRadius:10,fontSize:10}}>✅ נשמר</span>}
               {saveStatus==="loaded" && <span style={{background:"rgba(255,193,7,0.4)",padding:"1px 8px",borderRadius:10,fontSize:10}}>📂 נטען מהשמירה</span>}
