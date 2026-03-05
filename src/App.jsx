@@ -68,6 +68,14 @@ function deserializePosts(posts){
 }
 
 /* ─── PROMPTS ─────────────────────────────────────────────────────── */
+// ─── כלל שפה שחוזר בכל פרומפט ────────────────────────────────────
+const LANG_RULES = `
+כללי שפה עברית מחייבים — אסור לסטות מהם:
+• גוף שני רבים תמיד: "אתם/אתן", לא "אתה/את"
+• ריבוי תקין: "דקות" לא "דקה", "שעות" לא "שעה", "קילומטרים" לא "קילומטר" (אחרי מספר גדול מ-1)
+• אסור מקף ארוך (—)
+• שפה תקנית: בדוק כל צורת נטייה לפני שכותב`;
+
 const pMonday=(d,c,ne,notes)=>`אתה קופירייטר בכיר של רשת תחנות דלק Ten בישראל.
 
 דוגמת פוסט שני חסכוני מאושר:
@@ -85,7 +93,8 @@ ${DISC}
 עונה: ${c.season} | ${c.weather} | מצב: ${ne||c.news}
 חגים קרובים: ${c.holidays.filter(h=>Math.abs(h.d-d.getDate())<=8).map(h=>h.n).join(", ")||"אין"}
 ${notes?`הערות: ${notes}`:""}
-חוקים: אסור מקף ארוך (—), גוף שני רבים, 110-160 מילים כולל דיסקליימר, CTA עם לינק.
+${LANG_RULES}
+אורך: 110-160 מילים כולל דיסקליימר. CTA עם לינק.
 כתוב רק הטקסט הסופי.`;
 
 const pHoliday=(d,c,ne,notes)=>{
@@ -96,7 +105,8 @@ const pHoliday=(d,c,ne,notes)=>{
 חגים: ${h.length?h.map(hh=>hh.n).join(", "):"ללא חג, כתוב על המצב הנוכחי"}
 עונה: ${c.season} | מצב: ${ne||c.news}
 ${notes?`הערות: ${notes}`:""}
-חוקים: אסור מקף ארוך (—), 80-130 מילים, CTA לתחנה.
+${LANG_RULES}
+אורך: 80-130 מילים. CTA לתחנה.
 כתוב רק הטקסט הסופי.`;
 };
 
@@ -106,7 +116,8 @@ const pFun=(d,c,ne,notes)=>`אתה קופירייטר בכיר של Ten.
 כתוב פוסט מצחיק/אפליקציה לתאריך ${fmt(d)} (${dn(d)}).
 עונה: ${c.season} | מצב: ${ne||c.news}
 ${notes?`הערות: ${notes}`:""}
-חוקים: אסור מקף ארוך (—), הוק חזק, 70-120 מילים, CTA תיוג/תגובה/אפליקציה ${APP_LINK}.
+${LANG_RULES}
+אורך: 70-120 מילים. CTA תיוג/תגובה/אפליקציה ${APP_LINK}.
 כתוב רק הטקסט הסופי.`;
 
 const pRecruit=(d,c,ne,notes)=>`אתה קופירייטר בכיר של Ten.
@@ -114,24 +125,48 @@ const pRecruit=(d,c,ne,notes)=>`אתה קופירייטר בכיר של Ten.
 כתוב פוסט דרושים לתאריך ${fmt(d)} (${dn(d)}).
 עונה: ${c.season} | מצב: ${ne||c.news}
 ${notes?`הערות: ${notes}`:""}
-חוקים: אסור מקף ארוך (—), פתיחה יצירתית, 4 הטבות עם אמוג'י, CTA ווטסאפ+אתר, 120-150 מילים.
+${LANG_RULES}
+אורך: 120-150 מילים. פתיחה יצירתית, 4 הטבות עם אמוג'י, CTA ווטסאפ+אתר.
 כתוב רק הטקסט הסופי.`;
 
 const pPromo=(pt,m,notes)=>`אתה קופירייטר בכיר של Ten.
 דוגמה: "אל תצאו לדרך בלעדיו! 🚫🚗 עכשיו ב-Ten: בוסטר התנעה 12,000 mAh רק ב-279 ש'ח. משלמים באפליקציה? 259 ש'ח! 🤩 ${APP_LINK}. **בתוקף עד [תאריך] או עד גמר המלאי, אין כפל מבצעים."
+
 כתוב פוסט מבצע לחודש ${MHE[m]}.
 המבצע: ${pt}
 ${notes?`הערות: ${notes}`:""}
-חוקים: אסור מקף ארוך (—), פתיחה חזקה, מחיר ברור, לינק אפליקציה, דיסקליימר מלא עם תאריך, 100-150 מילים.
+
+חוק אבסולוטי: כתוב רק על המוצר/מבצע שצוין לעיל. אסור להמציא פרטים, שימושים, או תכונות שלא נאמרו. אם כתוב "מגבים" כתוב על מגבי שמשה לרכב בלבד. אם כתוב "שמן מנוע" כתוב על שמן מנוע בלבד. אל תנחש ואל תוסיף.
+${LANG_RULES}
+אורך: 100-150 מילים. פתיחה חזקה, מחיר ברור, לינק אפליקציה, דיסקליימר מלא עם תאריך.
 כתוב רק הטקסט הסופי.`;
 
-async function callAI(prompt){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{
+const LANG_CHECK_PROMPT = (text) => `אתה עורך לשון עברי מדויק. קרא את הטקסט הבא ותקן רק שגיאות דקדוק ונטייה — במיוחד:
+• ריבוי אחרי מספר: "20 דקה" → "20 דקות", "5 שעה" → "5 שעות", "3 קילומטר" → "3 קילומטרים"
+• גוף שני: אם יש "אתה/את" בפנייה לקהל, שנה לרבים "אתם/אתן"
+• כל שגיאת נטייה ברורה אחרת
+
+אל תשנה: סגנון, מבנה משפטים, אמוג'י, קישורים, תוכן.
+אם אין שגיאות — החזר את הטקסט כמות שהוא בלי שינוי.
+החזר רק את הטקסט המתוקן, בלי הסברים.
+
+טקסט:
+${text}`;
+
+async function callAI(prompt, skipCheck=false){
+  const r=await fetch("/api/ai",{
     method:"POST", headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:900,messages:[{role:"user",content:prompt}]})
+    body:JSON.stringify({prompt})
   });
   const d=await r.json();
-  return (d.content?.[0]?.text||"").trim();
+  const text=(d.text||"").trim();
+  if(skipCheck || !text) return text;
+  const r2=await fetch("/api/ai",{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({prompt:LANG_CHECK_PROMPT(text)})
+  });
+  const d2=await r2.json();
+  return (d2.text||text).trim();
 }
 
 /* ─── VISUAL ──────────────────────────────────────────────────────── */
@@ -208,24 +243,168 @@ function Badge({type}){
   return <span style={{display:"inline-block",padding:"3px 11px",borderRadius:20,fontSize:11,fontWeight:800,background:bg,color,border:`1px solid ${border}`,whiteSpace:"nowrap"}}>{type}</span>;
 }
 
+/* ─── EXPORT: HTML → opens as Google Doc ─────────────────────────── */
+function buildExportHTML(posts, month, year, c){
+  const TC = {
+    "\u05e9\u05e0\u05d9 \u05d7\u05e1\u05db\u05d5\u05e0\u05d9":              {bg:"#DDEEFF",color:"#1565C0",label:"\u26fd \u05e9\u05e0\u05d9 \u05d7\u05e1\u05db\u05d5\u05e0\u05d9"},
+    "\u05d7\u05d2 / \u05d0\u05d9\u05e8\u05d5\u05e2":              {bg:"#DDEECC",color:"#1B5E20",label:"\uD83C\uDF38 \u05d7\u05d2 / \u05d0\u05d9\u05e8\u05d5\u05e2"},
+    "\u05de\u05e6\u05d7\u05d9\u05e7 / \u05d0\u05e4\u05dc\u05d9\u05e7\u05e6\u05d9\u05d4":{bg:"#FFEECC",color:"#E65100",label:"\uD83D\uDCF1 \u05de\u05e6\u05d7\u05d9\u05e7 / \u05d0\u05e4\u05dc\u05d9\u05e7\u05e6\u05d9\u05d4"},
+    "\u05d3\u05e8\u05d5\u05e9\u05d9\u05dd":                   {bg:"#FFD6D6",color:"#C62828",label:"\uD83D\uDC65 \u05d3\u05e8\u05d5\u05e9\u05d9\u05dd"},
+    "\u05e4\u05d5\u05e1\u05d8 \u05de\u05d1\u05e6\u05e2":            {bg:"#FFF3CC",color:"#E65100",label:"\uD83D\uDED2 \u05e4\u05d5\u05e1\u05d8 \u05de\u05d1\u05e6\u05e2"},
+  };
+  const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const doneCnt = posts.filter(p=>p.copy).length;
+  const BD = "border:1px solid #CFD8DC";
+  const CELL = `${BD};padding:8px 12px;font-size:13px;font-family:Arial,sans-serif;background:#FFFFFF`;
+
+  // Summary table rows — plain white, no alternating colours
+  const rows = posts.map(p=>{
+    const tc = TC[p.type]||{bg:"#F5F5F5",color:"#333",label:p.type};
+    const st = p.copy
+      ? `<span style="color:#2E7D32;font-weight:700">\u2705 \u05de\u05d5\u05db\u05df</span>`
+      : `<span style="color:#C62828;font-weight:700">\u2B55 \u05de\u05de\u05ea\u05d9\u05df</span>`;
+    return `<tr>
+  <td style="${CELL};text-align:center;font-weight:700;color:#1565C0">${p.num}</td>
+  <td style="${CELL};text-align:center">${p.date?fmt(p.date):"\u05dc\u05e4\u05d9 \u05de\u05d1\u05e6\u05e2"}</td>
+  <td style="${CELL};text-align:center">${p.date?dn(p.date):""}</td>
+  <td style="${BD};padding:8px 12px;font-size:13px;font-family:Arial,sans-serif;background:${tc.bg};color:${tc.color};font-weight:700">${tc.label}</td>
+  <td style="${CELL};text-align:center">${st}</td>
+</tr>`;
+  }).join("\n");
+
+  // Post blocks — each post body is ONE cell with <br> separators, no row-per-line
+  const postBlocks = posts.map(p=>{
+    const tc = TC[p.type]||{bg:"#F5F5F5",color:"#333",label:p.type};
+    if(!p.copy){
+      return `<table width="100%" style="border-collapse:collapse;margin-bottom:12px">
+  <tr><td style="${BD};padding:12px 16px;font-size:13px;font-family:Arial,sans-serif;background:#FFF9E6">
+    <span style="color:#E65100;font-weight:700">${tc.label} \u2014 \u05e4\u05d5\u05e1\u05d8 #${p.num}</span><br>
+    <span style="color:#FF8F00;font-style:italic">\u2B55 \u05de\u05de\u05ea\u05d9\u05df \u05dc\u05e4\u05e8\u05d8\u05d9 \u05de\u05d1\u05e6\u05e2 \u05de\u05d4\u05dc\u05e7\u05d5\u05d7</span>
+  </td></tr>
+</table>`;
+    }
+
+    // ALL text in one cell, lines joined with <br> — no borders between lines
+    const lines = p.copy.split("\n");
+    const bodyHtml = lines.map((line,i)=>{
+      if(!line.trim()) return "";
+      const isDisc = line.startsWith("*");
+      const safe = esc(line);
+      if(isDisc)  return `<span style="font-size:11px;color:#90A4AE;font-style:italic">${safe}</span>`;
+      if(i===0)   return `<strong style="font-size:14px;color:#1A2733">${safe}</strong>`;
+      return `<span style="font-size:13px;color:#333333">${safe}</span>`;
+    }).filter(Boolean).join("<br>\n");
+
+    return `<table width="100%" style="border-collapse:collapse;margin-bottom:16px">
+  <tr><td style="background:#1565C0;padding:9px 16px;${BD}">
+    <span style="color:white;font-weight:900;font-size:15px">#${p.num}&nbsp;&nbsp;</span><span style="background:${tc.bg};color:${tc.color};font-weight:700;font-size:12px;padding:2px 8px">${tc.label}</span>${p.date?`&nbsp;&nbsp;<span style="color:#BDD8FF;font-size:12px">${fmt(p.date)} | ${dn(p.date)}</span>`:""}
+  </td></tr>
+  <tr><td style="background:#FFFFFF;${BD};padding:14px 18px;font-size:13px;font-family:Arial,sans-serif;line-height:1.85;color:#1A2733">
+    ${bodyHtml}
+  </td></tr>
+</table>`;
+  }).join("\n");
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>\u05d2\u05d0\u05e0\u05d8 \u05ea\u05d5\u05db\u05df | \u05d3\u05dc\u05e7 Ten | ${MHE[month]} ${year}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap');
+  body{font-family:'Heebo',Arial,sans-serif;direction:rtl;background:#FFFFFF;margin:0;padding:0;color:#1A2733}
+  .wrap{max-width:760px;margin:0 auto;padding:32px 24px}
+  .section-title{font-size:17px;font-weight:900;color:#1565C0;font-family:'Heebo',Arial,sans-serif;margin:0 0 12px;padding-bottom:5px;border-bottom:2px solid #1565C0}
+</style>
+</head>
+<body dir="rtl">
+<div class="wrap">
+
+<!-- COVER -->
+<table width="100%" style="border-collapse:collapse;margin-bottom:20px;background:#1565C0">
+<tr><td style="padding:28px 24px;text-align:center">
+  <div style="font-size:52px;font-weight:900;font-family:'Heebo',Arial,sans-serif;line-height:1;color:white">
+    \u05d3\u05dc\u05e7 <span style="color:#FFB3B3">Ten</span>
+  </div>
+  <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:10px;font-family:Arial,sans-serif">
+    \u05d2\u05d0\u05e0\u05d8 \u05ea\u05d5\u05db\u05df \u05e1\u05d5\u05e9\u05d9\u05d0\u05dc \u05de\u05d3\u05d9\u05d4 &nbsp;|&nbsp; ${MHE[month]} ${year}
+  </div>
+  <div style="color:rgba(255,255,255,0.55);font-size:12px;margin-top:6px;font-family:Arial,sans-serif">
+    ${doneCnt} \u05e4\u05d5\u05e1\u05d8\u05d9\u05dd \u05de\u05d5\u05db\u05e0\u05d9\u05dd \u05de\u05ea\u05d5\u05da ${posts.length}
+  </div>
+</td></tr>
+</table>
+
+<!-- META -->
+<table width="100%" style="border-collapse:collapse;margin-bottom:24px">
+<tr><td style="background:#FFF8E1;border:1px solid #FFE082;padding:12px 16px;font-size:13px;font-family:Arial,sans-serif;color:#5D4037;line-height:2">
+  📰 <strong>\u05d4\u05e7\u05e9\u05e8 \u05ea\u05e7\u05e9\u05d5\u05e8\u05ea\u05d9:</strong> ${esc(c.news)}<br>
+  🌿 <strong>\u05e2\u05d5\u05e0\u05d4:</strong> ${esc(c.season)} &nbsp;|&nbsp; ${esc(c.weather)}<br>
+  📅 <strong>\u05d7\u05d2\u05d9\u05dd:</strong> ${c.holidays.map(h=>esc(h.n)).join(", ")||"\u05d0\u05d9\u05df"}
+</td></tr>
+</table>
+
+<!-- SUMMARY -->
+<p class="section-title">📋 \u05e1\u05d9\u05db\u05d5\u05dd \u05d2\u05d0\u05e0\u05d8</p>
+<table width="100%" style="border-collapse:collapse;margin-bottom:28px">
+  <thead><tr style="background:#1565C0">
+    <th style="color:white;padding:9px 12px;font-size:13px;font-family:Arial,sans-serif;text-align:center;border:1px solid #1565C0;width:36px">#</th>
+    <th style="color:white;padding:9px 12px;font-size:13px;font-family:Arial,sans-serif;text-align:right;border:1px solid #1565C0">\u05ea\u05d0\u05e8\u05d9\u05da</th>
+    <th style="color:white;padding:9px 12px;font-size:13px;font-family:Arial,sans-serif;text-align:right;border:1px solid #1565C0">\u05d9\u05d5\u05dd</th>
+    <th style="color:white;padding:9px 12px;font-size:13px;font-family:Arial,sans-serif;text-align:right;border:1px solid #1565C0">\u05e1\u05d5\u05d2 \u05e4\u05d5\u05e1\u05d8</th>
+    <th style="color:white;padding:9px 12px;font-size:13px;font-family:Arial,sans-serif;text-align:center;border:1px solid #1565C0">\u05e1\u05d8\u05d0\u05d8\u05d5\u05e1</th>
+  </tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+
+<!-- POSTS -->
+<p class="section-title">📝 \u05e4\u05d5\u05e1\u05d8\u05d9\u05dd \u05de\u05dc\u05d0\u05d9\u05dd</p>
+${postBlocks}
+
+<!-- FOOTER -->
+<p style="text-align:center;color:#AAAAAA;font-size:11px;font-family:Arial,sans-serif;margin-top:24px;padding-top:12px;border-top:1px solid #EEEEEE">
+  \u05d2\u05d0\u05e0\u05d8 \u05ea\u05d5\u05db\u05df | \u05d3\u05dc\u05e7 Ten | ${MHE[month]} ${year}
+</p>
+
+</div>
+</body>
+</html>`;
+}
+
+function downloadOrOpenExport(posts, month, year, c){
+  const html = buildExportHTML(posts, month, year, c);
+  const blob = new Blob([html], {type:"text/html;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `גאנט-Ten-${MHE[month]}-${year}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+
+
 /* ─── EXPORT MODAL ────────────────────────────────────────────────── */
 function ExportModal({posts, month, year, c, onClose}){
   const [tab, setTab] = useState("preview");
   const [copied, setCopied] = useState(false);
+  const [exportDone, setExportDone] = useState(false);
 
   const textContent = [
-    `גאנט תוכן | דלק Ten | ${MHE[month]} ${year}`,
-    `עונה: ${c.season} | ${c.weather}`,
-    `חגים: ${c.holidays.map(h=>h.n).join(", ")||"אין"}`,
-    `הקשר: ${c.news}`, ``,
-    `=== סיכום ===`,
-    ...posts.map(p=>`${p.num}. ${p.date?fmt(p.date):"לפי מבצע"} | ${p.type} | ${p.copy?"✅ מוכן":"⭕ ממתין"}`),
-    ``, `=== פוסטים מלאים ===`, ``,
+    `\u05d2\u05d0\u05e0\u05d8 \u05ea\u05d5\u05db\u05df | \u05d3\u05dc\u05e7 Ten | ${MHE[month]} ${year}`,
+    `\u05e2\u05d5\u05e0\u05d4: ${c.season} | ${c.weather}`,
+    `\u05d7\u05d2\u05d9\u05dd: ${c.holidays.map(h=>h.n).join(", ")||"\u05d0\u05d9\u05df"}`,
+    `\u05d4\u05e7\u05e9\u05e8: ${c.news}`,``,
+    `=== \u05e1\u05d9\u05db\u05d5\u05dd ===`,
+    ...posts.map(p=>`${p.num}. ${p.date?fmt(p.date):"\u05dc\u05e4\u05d9 \u05de\u05d1\u05e6\u05e2"} | ${p.type} | ${p.copy?"\u2705 \u05de\u05d5\u05db\u05df":"\u2B55 \u05de\u05de\u05ea\u05d9\u05df"}`),
+    ``,`=== \u05e4\u05d5\u05e1\u05d8\u05d9\u05dd \u05de\u05dc\u05d0\u05d9\u05dd ===`,``,
     ...posts.map(p=>[
-      `────────────────────────`,
-      `פוסט #${p.num} | ${p.type}`,
+      `\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`,
+      `\u05e4\u05d5\u05e1\u05d8 #${p.num} | ${p.type}`,
       p.date?`${fmt(p.date)} | ${dn(p.date)}`:"",``,
-      p.copy||"[טרם נוצר]",``
+      p.copy||"[\u05d8\u05e8\u05dd \u05e0\u05d5\u05e6\u05e8]",``
     ].join("\n"))
   ].join("\n");
 
@@ -233,70 +412,71 @@ function ExportModal({posts, month, year, c, onClose}){
     navigator.clipboard.writeText(textContent).then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2500); });
   }
 
+  function doExport(){
+    downloadOrOpenExport(posts, month, year, c);
+    setExportDone(true);
+    setTimeout(()=>setExportDone(false),4000);
+  }
+
   const donePosts = posts.filter(p=>p.copy);
 
   return (
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={onClose}>
-      <div style={{background:WH,borderRadius:16,width:"100%",maxWidth:780,maxHeight:"90vh",display:"flex",flexDirection:"column",overflow:"hidden",direction:"rtl"}} onClick={e=>e.stopPropagation()}>
-        {/* Modal header */}
+      <div style={{background:WH,borderRadius:16,width:"100%",maxWidth:800,maxHeight:"90vh",display:"flex",flexDirection:"column",overflow:"hidden",direction:"rtl"}} onClick={e=>e.stopPropagation()}>
         <div style={{background:`linear-gradient(135deg,${BL},#0D47A1)`,padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
-          <div style={{color:WH,fontWeight:900,fontSize:16}}>📤 ייצוא גאנט | {MHE[month]} {year}</div>
-          <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",color:WH,borderRadius:8,padding:"5px 12px",cursor:"pointer",fontWeight:700,fontSize:14}}>✕</button>
+          <div style={{color:WH,fontWeight:900,fontSize:16}}>\uD83D\uDCE4 \u05d9\u05d9\u05e6\u05d5\u05d0 \u05d2\u05d0\u05e0\u05d8 | {MHE[month]} {year}</div>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.2)",border:"none",color:WH,borderRadius:8,padding:"5px 12px",cursor:"pointer",fontWeight:700,fontSize:14}}>\u2715</button>
         </div>
-
-        {/* Tabs */}
+        <div style={{background:"#E8F5E9",borderBottom:`1px solid #A5D6A7`,padding:"12px 20px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+          <span style={{fontSize:22}}>📄</span>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:800,color:"#1B5E20",fontSize:14}}>ייצוא לגוגל דוקס / Word</div>
+            <div style={{fontSize:12,color:"#388E3C"}}>מוריד קובץ HTML מעוצב — גרור אותו לגוגל דרייב, ייפתח שם כ-Google Doc</div>
+          </div>
+          <button onClick={doExport}
+            style={{background:exportDone?"#4CAF50":"#2E7D32",color:WH,border:"none",borderRadius:10,padding:"10px 22px",cursor:"pointer",fontWeight:800,fontSize:14,whiteSpace:"nowrap",minWidth:160}}>
+            {exportDone?"✅ הורד!":"⬇️ הורד ופתח בדוקס"}
+          </button>
+        </div>
         <div style={{display:"flex",borderBottom:`2px solid ${BR}`,flexShrink:0}}>
-          {[["text","📋 טקסט להעתקה"],["preview","👁️ תצוגה מקדימה"]].map(([id,label])=>(
+          {[["preview","\uD83D\uDC41\uFE0F \u05ea\u05e6\u05d5\u05d2\u05d4 \u05de\u05e7\u05d3\u05d9\u05de\u05d4"],["text","\uD83D\uDCCB \u05d8\u05e7\u05e1\u05d8 \u05d2\u05d5\u05dc\u05de\u05d9"]].map(([id,label])=>(
             <button key={id} onClick={()=>setTab(id)} style={{padding:"11px 20px",border:"none",background:"none",fontWeight:700,fontSize:13,cursor:"pointer",color:tab===id?BL:"#78909C",borderBottom:tab===id?`3px solid ${BL}`:"3px solid transparent",marginBottom:-2}}>
               {label}
             </button>
           ))}
         </div>
-
-        {/* Content */}
         <div style={{flex:1,overflow:"auto",padding:20}}>
-          {tab==="text" && (
-            <div>
-              <div style={{display:"flex",gap:8,marginBottom:12,alignItems:"center"}}>
-                <span style={{fontSize:13,color:"#546E7A",flex:1}}>העתק את הכל ואחר כך הדבק בגוגל דוקס, וורד, או וואטסאפ ללקוח</span>
-                <button onClick={copyAll} style={{background:copied?"#4CAF50":BL,color:WH,border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontWeight:800,fontSize:13,transition:"background 0.3s",whiteSpace:"nowrap"}}>
-                  {copied?"✅ הועתק!":"📋 העתק הכל"}
-                </button>
-              </div>
-              <pre style={{background:"#F8FAFB",border:`1px solid ${BR}`,borderRadius:10,padding:16,fontSize:12.5,lineHeight:1.8,whiteSpace:"pre-wrap",direction:"rtl",fontFamily:"Arial,sans-serif",maxHeight:420,overflow:"auto",color:DK}}>
-                {textContent}
-              </pre>
-            </div>
-          )}
-
           {tab==="preview" && (
             <div>
-              <div style={{background:"#E3F2FD",borderRadius:10,padding:"10px 14px",marginBottom:16,fontSize:12,color:"#1565C0",fontWeight:600}}>
-                💡 תצוגה מקדימה של הגאנט כפי שהלקוח יראה אותו. לשיתוף: העתק את הטקסט מהטאב הקודם.
-              </div>
-              {donePosts.length === 0 && (
-                <div style={{textAlign:"center",color:"#90A4AE",padding:40}}>אין פוסטים מוכנים עדיין</div>
-              )}
+              {donePosts.length===0&&<div style={{textAlign:"center",color:"#90A4AE",padding:40}}>\u05d0\u05d9\u05df \u05e4\u05d5\u05e1\u05d8\u05d9\u05dd \u05de\u05d5\u05db\u05e0\u05d9\u05dd \u05e2\u05d3\u05d9\u05d9\u05df</div>}
               {donePosts.map(p=>(
                 <div key={p.id} style={{background:WH,borderRadius:12,border:`1px solid ${BR}`,marginBottom:14,overflow:"hidden"}}>
                   <div style={{padding:"10px 16px",background:"#F0F7FF",borderBottom:`1px solid ${BR}`,display:"flex",gap:10,alignItems:"center"}}>
                     <span style={{fontWeight:900,color:BL,fontSize:14}}>#{p.num}</span>
-                    <span style={{fontWeight:700,fontSize:13}}>{p.date?`${fmt(p.date)} | ${dn(p.date)}`:"לפי מבצע"}</span>
+                    <span style={{fontWeight:700,fontSize:13}}>{p.date?`${fmt(p.date)} | ${dn(p.date)}`:"\u05dc\u05e4\u05d9 \u05de\u05d1\u05e6\u05e2"}</span>
                     <Badge type={p.type}/>
+                    <button onClick={()=>navigator.clipboard.writeText(p.copy)} style={{marginRight:"auto",background:"none",border:`1px solid ${BL}`,color:BL,borderRadius:6,padding:"2px 9px",cursor:"pointer",fontSize:11,fontWeight:700}}>\uD83D\uDCCB \u05d4\u05e2\u05ea\u05e7</button>
                   </div>
-                  <div style={{padding:"14px 16px",fontSize:14,lineHeight:1.85,whiteSpace:"pre-wrap",color:DK}}>
-                    {p.copy}
-                  </div>
+                  <div style={{padding:"14px 16px",fontSize:14,lineHeight:1.9,whiteSpace:"pre-wrap",color:DK}}>{p.copy}</div>
                 </div>
               ))}
             </div>
           )}
+          {tab==="text"&&(
+            <div>
+              <div style={{display:"flex",gap:8,marginBottom:12,alignItems:"center"}}>
+                <span style={{fontSize:12,color:"#546E7A",flex:1}}>\u05dc\u05d2\u05d5\u05d2\u05dc \u05d3\u05d5\u05e7\u05e1 \u05d9\u05d3\u05e0\u05d9: \u05d4\u05e2\u05ea\u05e7 \u05d4\u05db\u05dc \u2190 \u05e4\u05ea\u05d7 \u05d2\u05d5\u05d2\u05dc \u05d3\u05d5\u05e7\u05e1 \u2190 Ctrl+V</span>
+                <button onClick={copyAll} style={{background:copied?"#4CAF50":BL,color:WH,border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontWeight:800,fontSize:13,transition:"background 0.3s",whiteSpace:"nowrap"}}>
+                  {copied?"\u2705 \u05d4\u05d5\u05e2\u05ea\u05e7!":"\uD83D\uDCCB \u05d4\u05e2\u05ea\u05e7 \u05d4\u05db\u05dc"}
+                </button>
+              </div>
+              <pre style={{background:"#F8FAFB",border:`1px solid ${BR}`,borderRadius:10,padding:16,fontSize:12,lineHeight:1.8,whiteSpace:"pre-wrap",direction:"rtl",fontFamily:"Arial,sans-serif",maxHeight:400,overflow:"auto",color:DK}}>{textContent}</pre>
+            </div>
+          )}
         </div>
-
-        {/* Footer */}
-        <div style={{borderTop:`1px solid ${BR}`,padding:"12px 20px",background:"#FAFBFC",flexShrink:0,fontSize:12,color:"#78909C",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span>{donePosts.length} פוסטים מוכנים מתוך {posts.length}</span>
-          <span>לשיתוף ללקוח: העתק טקסט ← שלח בווטסאפ / מייל / הדבק בגוגל דוקס</span>
+        <div style={{borderTop:`1px solid ${BR}`,padding:"10px 20px",background:"#FAFBFC",flexShrink:0,fontSize:11,color:"#78909C",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <span>{donePosts.length} \u05e4\u05d5\u05e1\u05d8\u05d9\u05dd \u05de\u05d5\u05db\u05e0\u05d9\u05dd \u05de\u05ea\u05d5\u05da {posts.length}</span>
+          <span>\u05d4\u05d5\u05e8\u05d3 DOCX \u2190 \u05e4\u05ea\u05d7 \u05d1-Word / Google Drive / \u05e9\u05dc\u05d7 \u05dc\u05dc\u05e7\u05d5\u05d7</span>
         </div>
       </div>
     </div>
@@ -466,9 +646,9 @@ export default function TenGanttAI(){
   useEffect(()=>{
     async function load(){
       try {
-        const saved = await window.storage.get(STORAGE_KEY);
-        if(saved && saved.value){
-          const data = JSON.parse(saved.value);
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if(saved){
+          const data = saved;
           setYear(data.year || now.getFullYear());
           setMonth(data.month || now.getMonth()+1);
           setNe(data.ne || "");
@@ -491,7 +671,7 @@ export default function TenGanttAI(){
     setSaveStatus("saving");
     const timer = setTimeout(async()=>{
       try {
-        await window.storage.set(STORAGE_KEY, JSON.stringify({
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
           year, month, ne,
           posts: serializePosts(posts),
           savedAt: new Date().toISOString()
@@ -532,7 +712,7 @@ export default function TenGanttAI(){
   }
 
   async function clearSaved(){
-    try { await window.storage.delete(STORAGE_KEY); } catch(e){}
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
     setPosts([]);
     setPhase("setup");
     setProgress({done:0,total:0});
