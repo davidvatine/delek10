@@ -197,15 +197,22 @@ async function callAI(prompt, skipCheck=false){
     method:"POST", headers:{"Content-Type":"application/json"},
     body:JSON.stringify({prompt})
   });
+  if(!r.ok) throw new Error(`API error: ${r.status}`);
   const d=await r.json();
   const text=(d.text||"").trim();
   if(skipCheck || !text) return text;
-  const r2=await fetch("/api/ai",{
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({prompt:LANG_CHECK_PROMPT(text)})
-  });
-  const d2=await r2.json();
-  return (d2.text||text).trim();
+  // lang check — if it fails, return original text (don't throw)
+  try{
+    const r2=await fetch("/api/ai",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({prompt:LANG_CHECK_PROMPT(text)})
+    });
+    if(r2.ok){
+      const d2=await r2.json();
+      return (d2.text||text).trim();
+    }
+  } catch(e){}
+  return text;
 }
 
 /* ─── VISUAL ──────────────────────────────────────────────────────── */
@@ -744,11 +751,20 @@ export default function TenGanttAI(){
     for(const post of auto){
       let prompt="";
       const localCtx = getCtx(month);
-      if(post.tk==="monday")     prompt=pMonday(post.date,localCtx,ne,"");
+      if(post.tk==="monday")       prompt=pMonday(post.date,localCtx,ne,"");
       else if(post.tk==="holiday") prompt=pHoliday(post.date,localCtx,ne,"");
       else if(post.tk==="fun")     prompt=pFun(post.date,localCtx,ne,"");
       else if(post.tk==="recruit") prompt=pRecruit(post.date,localCtx,ne,"");
-      const copy = await callAI(prompt);
+      // try up to 2 times — never let one failure stop the whole run
+      let copy = "";
+      for(let attempt=0; attempt<2; attempt++){
+        try{
+          copy = await callAI(prompt);
+          if(copy) break;
+        } catch(e){
+          if(attempt===0) await new Promise(r=>setTimeout(r,1500));
+        }
+      }
       setPosts(prev=>prev.map(p=>p.id===post.id?{...p,copy}:p));
       setProgress(prev=>({...prev,done:prev.done+1}));
     }
