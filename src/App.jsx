@@ -8,7 +8,46 @@ const WHATSAPP    = "054-3207261";
 const DISC        = `*החיסכון בתשלום באמצעות כרטיס מועדון TenVIP או בתשלום באפליקציית Ten. החיסכון ממחיר בנזין בשירות מלא, כפי שנקבע ע"י מנהל הדלק. החיסכון הינו בתדלוק בשירות עצמי בלבד, אין כפל מבצעים והנחות.`;
 const MHE = ["","ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const DHE = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
-const STORAGE_KEY = "ten-gantt-v5";
+const STORAGE_KEY = "ten-gantt-v5"; // legacy single-gantt key
+const GANTT_LIST_KEY = "ten-gantt-list-v1"; // list of saved gantt keys
+
+function ganttKey(y, m) { return `ten-gantt-${y}-${m}`; }
+
+function listSavedGantts() {
+  try {
+    const list = JSON.parse(localStorage.getItem(GANTT_LIST_KEY) || "[]");
+    return list; // [{year, month, savedAt, doneCount}]
+  } catch(e) { return []; }
+}
+
+function saveGanttToStorage(year, month, ne, posts) {
+  try {
+    const key = ganttKey(year, month);
+    const data = { year, month, ne, posts: serializePosts(posts), savedAt: new Date().toISOString(), doneCount: posts.filter(p=>p.copy).length };
+    localStorage.setItem(key, JSON.stringify(data));
+    // update list
+    let list = listSavedGantts();
+    list = list.filter(g => !(g.year===year && g.month===month));
+    list.unshift({ year, month, savedAt: data.savedAt, doneCount: data.doneCount });
+    localStorage.setItem(GANTT_LIST_KEY, JSON.stringify(list));
+  } catch(e) {}
+}
+
+function loadGanttFromStorage(year, month) {
+  try {
+    const key = ganttKey(year, month);
+    return JSON.parse(localStorage.getItem(key) || "null");
+  } catch(e) { return null; }
+}
+
+function deleteGanttFromStorage(year, month) {
+  try {
+    localStorage.removeItem(ganttKey(year, month));
+    let list = listSavedGantts();
+    list = list.filter(g => !(g.year===year && g.month===month));
+    localStorage.setItem(GANTT_LIST_KEY, JSON.stringify(list));
+  } catch(e) {}
+}
 
 const MD = {
   1:{season:"חורף",emoji:"❄️",weather:"קור וגשמים",holidays:[{d:15,n:'ט"ו בשבט'}],news:"גשמי חורף, עלייה במחירים"},
@@ -627,13 +666,14 @@ export default function TenGanttAI(){
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth()+1);
-  const [phase, setPhase] = useState("setup");
+  const [phase, setPhase] = useState("setup"); // "setup" | "gantt" | "list"
   const [posts, setPosts] = useState([]);
   const [progress, setProgress] = useState({done:0,total:0});
   const [ne, setNe] = useState("");
   const [showExport, setShowExport] = useState(false);
   const [saveStatus, setSaveStatus] = useState(""); // "saving" | "saved" | "loaded" | ""
   const [storageLoading, setStorageLoading] = useState(true);
+  const [savedGantts, setSavedGantts] = useState([]);
 
   const c = getCtx(month);
   const AUTO = ["monday","holiday","fun","recruit"];
@@ -646,20 +686,17 @@ export default function TenGanttAI(){
   useEffect(()=>{
     async function load(){
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-        if(saved){
-          const data = saved;
-          setYear(data.year || now.getFullYear());
-          setMonth(data.month || now.getMonth()+1);
-          setNe(data.ne || "");
-          if(data.posts && data.posts.length > 0){
-            setPosts(deserializePosts(data.posts));
-            setPhase("gantt");
-            setSaveStatus("loaded");
-            setTimeout(()=>setSaveStatus(""),3000);
-          }
+        // Load list of saved gantts
+        const list = listSavedGantts();
+        setSavedGantts(list);
+        // Migrate legacy single-gantt if exists
+        const legacy = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if(legacy && legacy.posts && legacy.posts.length > 0){
+          saveGanttToStorage(legacy.year||now.getFullYear(), legacy.month||now.getMonth()+1, legacy.ne||"", deserializePosts(legacy.posts));
+          localStorage.removeItem(STORAGE_KEY);
+          setSavedGantts(listSavedGantts());
         }
-      } catch(e){ /* no saved data */ }
+      } catch(e){}
       setStorageLoading(false);
     }
     load();
@@ -669,13 +706,10 @@ export default function TenGanttAI(){
   useEffect(()=>{
     if(posts.length === 0 || storageLoading) return;
     setSaveStatus("saving");
-    const timer = setTimeout(async()=>{
+    const timer = setTimeout(()=>{
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          year, month, ne,
-          posts: serializePosts(posts),
-          savedAt: new Date().toISOString()
-        }));
+        saveGanttToStorage(year, month, ne, posts);
+        setSavedGantts(listSavedGantts());
         setSaveStatus("saved");
         setTimeout(()=>setSaveStatus(""),2500);
       } catch(e){ setSaveStatus(""); }
@@ -685,6 +719,23 @@ export default function TenGanttAI(){
 
   function upd(updated){
     setPosts(prev=>prev.map(p=>p.id===updated.id?updated:p));
+  }
+
+  function loadGantt(g){
+    const data = loadGanttFromStorage(g.year, g.month);
+    if(!data) return;
+    setYear(data.year);
+    setMonth(data.month);
+    setNe(data.ne||"");
+    setPosts(deserializePosts(data.posts));
+    setPhase("gantt");
+    setSaveStatus("loaded");
+    setTimeout(()=>setSaveStatus(""),3000);
+  }
+
+  function deleteGantt(g){
+    deleteGanttFromStorage(g.year, g.month);
+    setSavedGantts(listSavedGantts());
   }
 
   async function runAuto(arr){
@@ -712,7 +763,8 @@ export default function TenGanttAI(){
   }
 
   async function clearSaved(){
-    try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+    deleteGanttFromStorage(year, month);
+    setSavedGantts(listSavedGantts());
     setPosts([]);
     setPhase("setup");
     setProgress({done:0,total:0});
@@ -729,17 +781,87 @@ export default function TenGanttAI(){
     );
   }
 
+  /* ── SAVED GANTTS LIST ── */
+  if(phase==="list") return (
+    <div style={{minHeight:"100vh",background:BG,fontFamily:"Arial,sans-serif",direction:"rtl"}}>
+      <div style={{background:`linear-gradient(135deg,${BL} 0%,#0D47A1 100%)`,padding:"13px 22px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{width:44,height:44,borderRadius:"50%",background:WH,display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <span style={{color:BL,fontWeight:900,fontSize:17}}>1</span><span style={{color:RD,fontWeight:900,fontSize:17}}>0</span>
+          </div>
+          <div style={{color:WH,fontSize:17,fontWeight:900}}>גאנטים שמורים</div>
+        </div>
+        <button onClick={()=>setPhase("setup")}
+          style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",color:WH,borderRadius:8,padding:"8px 16px",cursor:"pointer",fontSize:13,fontWeight:700}}>
+          ＋ גאנט חדש
+        </button>
+      </div>
+
+      <div style={{maxWidth:600,margin:"28px auto",padding:"0 16px"}}>
+        {savedGantts.length === 0 ? (
+          <div style={{background:WH,borderRadius:16,padding:40,textAlign:"center",boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+            <div style={{fontSize:48,marginBottom:12}}>📭</div>
+            <div style={{color:DK,fontWeight:700,fontSize:16,marginBottom:8}}>אין גאנטים שמורים עדיין</div>
+            <div style={{color:"#78909C",fontSize:13,marginBottom:20}}>צור גאנט חדש כדי להתחיל</div>
+            <button onClick={()=>setPhase("setup")}
+              style={{background:BL,color:WH,border:"none",borderRadius:10,padding:"12px 28px",fontSize:15,fontWeight:800,cursor:"pointer"}}>
+              ＋ צור גאנט חדש
+            </button>
+          </div>
+        ) : (
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            <div style={{fontSize:13,color:"#78909C",marginBottom:4}}>{savedGantts.length} גאנטים שמורים בדפדפן</div>
+            {savedGantts.map(g=>(
+              <div key={`${g.year}-${g.month}`} style={{background:WH,borderRadius:12,padding:"16px 20px",boxShadow:"0 2px 10px rgba(0,0,0,0.07)",border:`1px solid ${BR}`,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:900,color:BL,fontSize:17}}>{MHE[g.month]} {g.year}</div>
+                  <div style={{fontSize:12,color:"#78909C",marginTop:3}}>
+                    {getCtx(g.month).emoji} {getCtx(g.month).season} •
+                    {g.doneCount>0 ? ` ${g.doneCount} פוסטים מוכנים` : " טרם הושלם"} •
+                    נשמר {new Date(g.savedAt).toLocaleDateString("he-IL")}
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={()=>loadGantt(g)}
+                    style={{background:BL,color:WH,border:"none",borderRadius:8,padding:"9px 18px",cursor:"pointer",fontSize:13,fontWeight:800}}>
+                    📂 פתח
+                  </button>
+                  <button onClick={()=>{ if(window.confirm(`למחוק את גאנט ${MHE[g.month]} ${g.year}?`)) deleteGantt(g); }}
+                    style={{background:"#FFEBEE",color:RD,border:`1px solid #FFCDD2`,borderRadius:8,padding:"9px 12px",cursor:"pointer",fontSize:13,fontWeight:700}}>
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button onClick={()=>setPhase("setup")}
+              style={{background:WH,color:BL,border:`2px solid ${BL}`,borderRadius:10,padding:"13px 0",fontSize:15,fontWeight:800,cursor:"pointer",marginTop:4}}>
+              ＋ צור גאנט חדש
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   /* ── SETUP ── */
   if(phase==="setup") return (
     <div style={{minHeight:"100vh",background:BG,fontFamily:"Arial,sans-serif",direction:"rtl"}}>
-      <div style={{background:`linear-gradient(135deg,${BL} 0%,#0D47A1 100%)`,padding:"20px 28px",display:"flex",alignItems:"center",gap:14}}>
-        <div style={{width:52,height:52,borderRadius:"50%",background:WH,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 12px rgba(0,0,0,0.2)"}}>
-          <span style={{color:BL,fontWeight:900,fontSize:20}}>1</span><span style={{color:RD,fontWeight:900,fontSize:20}}>0</span>
+      <div style={{background:`linear-gradient(135deg,${BL} 0%,#0D47A1 100%)`,padding:"20px 28px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:14}}>
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <div style={{width:52,height:52,borderRadius:"50%",background:WH,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 3px 12px rgba(0,0,0,0.2)"}}>
+            <span style={{color:BL,fontWeight:900,fontSize:20}}>1</span><span style={{color:RD,fontWeight:900,fontSize:20}}>0</span>
+          </div>
+          <div>
+            <div style={{color:WH,fontSize:20,fontWeight:900}}>גאנט AI | דלק Ten</div>
+            <div style={{color:"rgba(255,255,255,0.8)",fontSize:13}}>9 פוסטים חודשיים | שמירה אוטומטית | ייצוא קל</div>
+          </div>
         </div>
-        <div>
-          <div style={{color:WH,fontSize:20,fontWeight:900}}>גאנט AI | דלק Ten</div>
-          <div style={{color:"rgba(255,255,255,0.8)",fontSize:13}}>9 פוסטים חודשיים | שמירה אוטומטית | ייצוא קל</div>
-        </div>
+        {savedGantts.length > 0 && (
+          <button onClick={()=>setPhase("list")}
+            style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.4)",color:WH,borderRadius:8,padding:"9px 16px",cursor:"pointer",fontSize:13,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
+            📂 גאנטים שמורים <span style={{background:RD,borderRadius:"50%",width:20,height:20,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900}}>{savedGantts.length}</span>
+          </button>
+        )}
       </div>
 
       <div style={{maxWidth:600,margin:"32px auto",padding:"0 16px"}}>
@@ -817,6 +939,10 @@ export default function TenGanttAI(){
           <button onClick={()=>setShowExport(true)}
             style={{background:"#4CAF50",color:WH,border:"none",borderRadius:8,padding:"8px 18px",cursor:"pointer",fontSize:13,fontWeight:800}}>
             📤 ייצוא ושיתוף
+          </button>
+          <button onClick={()=>setPhase("list")}
+            style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",color:WH,borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:12,fontWeight:700}}>
+            📂 גאנטים שמורים {savedGantts.length>1&&<span style={{background:RD,borderRadius:"50%",padding:"0 5px",fontSize:10,marginRight:4}}>{savedGantts.length}</span>}
           </button>
           <button onClick={clearSaved}
             style={{background:"rgba(255,255,255,0.15)",border:"1px solid rgba(255,255,255,0.3)",color:WH,borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:12,fontWeight:600}}>
