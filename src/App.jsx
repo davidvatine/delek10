@@ -127,7 +127,7 @@ const[view,setView]=useState(initView);
       });
     }
   },[]);
-
+useEffect(()=>{const onPop=()=>setView(window.location.pathname==="/gantt"?"setup":"select");window.addEventListener("popstate",onPop);return()=>window.removeEventListener("popstate",onPop);},[]);
   // שמור state ב-sessionStorage למניעת איבוד ברענון
   useEffect(()=>{
     if(posts.length>0){
