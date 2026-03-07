@@ -10,6 +10,19 @@ const MHE = ["","ינואר","פברואר","מרץ","אפריל","מאי","יו
 const TEN_LOGO = "https://taskey.co.il/taskey/uploads/1772898932-401744066150036.png";
 const DV_LOGO = "https://taskey.co.il/taskey/uploads/1772898975-153713516261042.png";
 
+// --- רכיב לוגו חכם (מונע תמונה שבורה) ---
+const SmartLogo = ({ src, alt, style }) => {
+  const [error, setError] = useState(false);
+  if (error || !src) {
+    return (
+      <div style={{ ...style, display: 'flex', alignItems: 'center', justifyContent: 'center', background: DV_PURPLE, color: WH, fontWeight: 'bold', fontSize: style.width / 3, borderRadius: '8px' }}>
+        {alt}
+      </div>
+    );
+  }
+  return <img src={src} alt={alt} style={style} onError={() => setError(true)} />;
+};
+
 // --- לוגיקת AI ---
 async function callAI(prompt) {
   try {
@@ -55,18 +68,14 @@ function Badge({type}){
   return <span style={{padding:"4px 12px", borderRadius:20, fontSize:11, fontWeight:800, background:bg, color}}>{type}</span>;
 }
 
-// --- כרטיס פוסט בודד ---
 function PostCard({post, onUpdate}){
   const [loading, setLoading] = useState(false);
-
   async function generate(){
     setLoading(true);
-    const p = `כתוב פוסט מקצועי לרשת Ten עבור ${post.type}. ${post.tk === 'monday' ? 'ציין חיסכון של 40 אגורות.' : ''}`;
-    const copy = await callAI(p);
+    const copy = await callAI(`כתוב פוסט מקצועי לרשת Ten עבור ${post.type}.`);
     onUpdate({...post, copy});
     setLoading(false);
   }
-
   return (
     <div style={{background:WH, borderRadius:24, marginBottom:25, boxShadow:"0 10px 30px rgba(0,0,0,0.05)", border:`1px solid ${BR}`, overflow:"hidden", display:"flex", flexWrap:"wrap"}}>
       <div style={{flex:1, padding:30, minWidth:320}}>
@@ -81,7 +90,7 @@ function PostCard({post, onUpdate}){
           {loading ? "🪄 מייצר תוכן..." : post.copy || "ממתין לייצור תוכן..."}
         </div>
         {!post.copy && (
-          <button onClick={generate} style={{marginTop:20, background:DV_PURPLE, color:WH, border:"none", padding:"12px 25px", borderRadius:12, fontWeight:700, cursor:"pointer", boxShadow:"0 4px 12px rgba(109,40,217,0.2)"}}>🪄 ייצר טקסט</button>
+          <button onClick={generate} style={{marginTop:20, background:DV_PURPLE, color:WH, border:"none", padding:"12px 25px", borderRadius:12, fontWeight:700, cursor:"pointer"}}>🪄 ייצר טקסט</button>
         )}
       </div>
       <div style={{padding:30, background:"#F9FAFB", display:"flex", alignItems:"center", justifyContent:"center", borderRight:`1px solid ${BR}`}}>
@@ -91,7 +100,7 @@ function PostCard({post, onUpdate}){
   );
 }
 
-// --- רכיב האפליקציה המרכזי ---
+// --- האפליקציה הראשית ---
 export default function App() {
   const [view, setView] = useState("select-client");
   const [selectedClient, setSelectedClient] = useState(null);
@@ -100,11 +109,11 @@ export default function App() {
 
   const buildGantt = () => {
     const arr = [
-      {id:1, type:"שני חסכוני", tk:"monday", date:"03.03"},
-      {id:2, type:"חג / אירוע", tk:"holiday", date:"10.03"},
-      {id:3, type:"מצחיק / אפליקציה", tk:"fun", date:"17.03"},
-      {id:4, type:"דרושים", tk:"recruit", date:"24.03"},
-      {id:5, type:"פוסט מבצע", tk:"promo", date:null}
+      {id:1, type:"שני חסכוני", date:"03.03"},
+      {id:2, type:"חג / אירוע", date:"10.03"},
+      {id:3, type:"מצחיק / אפליקציה", date:"17.03"},
+      {id:4, type:"דרושים", date:"24.03"},
+      {id:5, type:"פוסט מבצע", date:null}
     ];
     setPosts(arr);
     setView("gantt");
@@ -114,24 +123,16 @@ export default function App() {
     return (
       <div style={{ minHeight: "100vh", background: BG_SOFT, display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl", fontFamily: "system-ui" }}>
         <div style={{ background: WH, padding: 45, borderRadius: 35, boxShadow: "0 25px 60px -12px rgba(0,0,0,0.12)", textAlign: "center", width: "95%", maxWidth: 460 }}>
-          <img src={DV_LOGO} alt="David Vatine" style={{ height: 50, margin: "0 auto 30px", display: "block" }} />
+          <SmartLogo src={DV_LOGO} alt="DV" style={{ width: 120, height: 60, margin: "0 auto 30px", display: "block", borderRadius: '8px' }} />
           <h2 style={{ color: DV_PURPLE, fontWeight: 800, fontSize: 30, marginBottom: 10 }}>בחר לקוח</h2>
           <p style={{ color: "#64748B", marginBottom: 35 }}>בחר לקוח כדי להתחיל בניהול התוכן</p>
-
-          <div 
-            onClick={() => { setSelectedClient("Ten"); setView("setup"); }}
-            style={{ border: `2px solid ${DV_PURPLE}`, borderRadius: 22, padding: "22px 26px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", background: "white", transition: "transform 0.2s" }}
-          >
+          <div onClick={() => { setSelectedClient("Ten"); setView("setup"); }} style={{ border: `2px solid ${DV_PURPLE}`, borderRadius: 22, padding: "22px 26px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", background: "white" }}>
             <span style={{ color: DV_PURPLE, fontSize: 20 }}>←</span>
             <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
               <span style={{ fontWeight: 700, fontSize: 22, color: DK }}>דלק Ten</span>
-              <img src={TEN_LOGO} alt="Ten" style={{ width: 45, height: 45, borderRadius: "50%", border: "1px solid #eee" }} />
+              <SmartLogo src={TEN_LOGO} alt="Ten" style={{ width: 45, height: 45, borderRadius: "50%" }} />
             </div>
           </div>
-
-          <button style={{ marginTop: 25, width: "100%", background: "none", border: `2px dashed ${BR}`, padding: 20, borderRadius: 22, color: "#94A3B8", fontWeight: 700, cursor: "not-allowed" }}>
-            + הוסף לקוח חדש
-          </button>
         </div>
       </div>
     );
@@ -141,24 +142,13 @@ export default function App() {
     return (
       <div style={{ minHeight: "100vh", background: BG_SOFT, display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl", fontFamily: "system-ui" }}>
         <div style={{ background: WH, padding: 45, borderRadius: 35, boxShadow: "0 25px 60px -12px rgba(0,0,0,0.12)", textAlign: "center", width: "95%", maxWidth: 460 }}>
-          <div style={{ background: DV_PURPLE, width: 65, height: 65, borderRadius: 20, margin: "0 auto 25px", display: "flex", alignItems: "center", justifyContent: "center", color: WH, fontWeight: 900, fontSize: 24, boxShadow: "0 10px 20px rgba(109,40,217,0.2)" }}>DV</div>
+          <div style={{ background: DV_PURPLE, width: 65, height: 65, borderRadius: 20, margin: "0 auto 25px", display: "flex", alignItems: "center", justifyContent: "center", color: WH, fontWeight: 900, fontSize: 24 }}>DV</div>
           <h2 style={{ color: DK, fontWeight: 800, fontSize: 32, marginBottom: 12 }}>מערכת גאנט תוכן</h2>
           <p style={{ color: "#64748B", marginBottom: 35 }}>ניהול תוכן חכם לרשת {selectedClient}</p>
-
-          <select 
-            value={month} 
-            onChange={(e) => setMonth(+e.target.value)}
-            style={{ width: "100%", padding: 20, borderRadius: 18, border: `2px solid ${BR}`, marginBottom: 25, fontSize: 18, fontWeight: 700, textAlign: "center", outline: "none", cursor: "pointer" }}
-          >
+          <select value={month} onChange={(e) => setMonth(+e.target.value)} style={{ width: "100%", padding: 20, borderRadius: 18, border: `2px solid ${BR}`, marginBottom: 25, fontSize: 18, fontWeight: 700, textAlign: "center" }}>
             {MHE.map((m, i) => i > 0 && <option key={i} value={i}>{m}</option>)}
           </select>
-
-          <button 
-            onClick={buildGantt}
-            style={{ width: "100%", padding: 22, background: `linear-gradient(135deg, ${DV_GRAD1}, ${DV_GRAD2})`, color: WH, border: "none", borderRadius: 20, fontSize: 19, fontWeight: 900, cursor: "pointer", boxShadow: "0 10px 25px rgba(109,40,217,0.3)" }}
-          >
-            צור גאנט {MHE[month]} 🚀
-          </button>
+          <button onClick={buildGantt} style={{ width: "100%", padding: 22, background: `linear-gradient(135deg, ${DV_GRAD1}, ${DV_GRAD2})`, color: WH, border: "none", borderRadius: 20, fontSize: 19, fontWeight: 900, cursor: "pointer" }}>צור גאנט {MHE[month]} 🚀</button>
         </div>
       </div>
     );
@@ -168,10 +158,10 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: "#F8FAFC", direction: "rtl", fontFamily: "system-ui" }}>
       <header style={{ background: WH, padding: "20px 40px", display: "flex", justifyContent: "space-between", alignItems:"center", borderBottom:`1px solid ${BR}`, position:"sticky", top:0, zIndex:100 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 15 }}>
-          <img src={DV_LOGO} alt="DV" style={{ height: 35 }} />
+          <SmartLogo src={DV_LOGO} alt="DV" style={{ height: 35, width: 70 }} />
           <h1 style={{ fontSize: 22, fontWeight: 800, color: DK }}>גאנט {selectedClient} | {MHE[month]} 2025</h1>
         </div>
-        <button onClick={() => setView("setup")} style={{ background: "#F1F5F9", border: "none", padding: "12px 22px", borderRadius: 14, fontWeight: 700, cursor: "pointer", color: "#475569" }}>חזרה להגדרות</button>
+        <button onClick={() => setView("setup")} style={{ background: "#F1F5F9", border: "none", padding: "12px 22px", borderRadius: 14, fontWeight: 700, cursor: "pointer", color: "#475569" }}>חזרה</button>
       </header>
       <main style={{ maxWidth: 1000, margin: "45px auto", padding: "0 25px" }}>
         {posts.map(p => (
