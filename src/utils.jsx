@@ -1,6 +1,6 @@
 // ── כלים ──
 import React,{useState}from"react";
-import{PU,WH,BL,APP_LINK,DISCLAIMER,MCTX,MHE}from"./constants.js";
+import{PU,WH,BL,APP_LINK,DISCLAIMER,MHE}from"./constants.js";
 
 export const SLogo=({src,alt,style})=>{
   const[e,sE]=useState(false);
