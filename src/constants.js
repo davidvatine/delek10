@@ -8,18 +8,18 @@ export const YEARS=[2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036];
 
 export function getMCTX(year){
   // חגים יהודיים מאומתים 2025-2035
- const JH={
-  2026:{purim:[3,3],pesach:[4,2,4,8],atzmaut:[4,22],zikaron:[4,21],lag:[5,5],shavuot:[5,22],rh:[9,12],yk:[9,21],sukkot:[9,25,10,2],hanuka:[12,5,12,12]},
-  2027:{purim:[3,23],pesach:[4,22,4,28],atzmaut:[4,12],zikaron:[4,11],lag:[5,25],shavuot:[6,11],rh:[10,2],yk:[10,11],sukkot:[10,16,10,22],hanuka:[12,25,1,1]},
-  2028:{purim:[3,12],pesach:[4,11,4,17],atzmaut:[5,1],zikaron:[4,30],lag:[5,27],shavuot:[5,31],rh:[9,21],yk:[9,30],sukkot:[10,5,10,11],hanuka:[12,13,12,20]},
-  2029:{purim:[3,1],pesach:[3,31,4,6],atzmaut:[4,19],zikaron:[4,18],lag:[5,2],shavuot:[5,20],rh:[9,10],yk:[9,19],sukkot:[9,24,9,30],hanuka:[12,2,12,9]},
-  2030:{purim:[3,19],pesach:[4,18,4,24],atzmaut:[5,7],zikaron:[5,6],lag:[5,21],shavuot:[6,7],rh:[9,28],yk:[10,7],sukkot:[10,12,10,18],hanuka:[12,21,12,28]},
-  2031:{purim:[3,9],pesach:[4,8,4,14],atzmaut:[4,27],zikaron:[4,26],lag:[5,11],shavuot:[5,28],rh:[9,18],yk:[9,27],sukkot:[10,2,10,8],hanuka:[12,11,12,18]},
-  2032:{purim:[3,26],pesach:[4,24,4,30],atzmaut:[4,16],zikaron:[4,15],lag:[5,28],shavuot:[6,13],rh:[9,6],yk:[9,15],sukkot:[9,20,9,26],hanuka:[12,1,12,8]},
-  2033:{purim:[3,14],pesach:[4,13,4,19],atzmaut:[5,3],zikaron:[5,2],lag:[5,17],shavuot:[6,2],rh:[9,26],yk:[10,5],sukkot:[10,10,10,16],hanuka:[12,20,12,27]},
-  2034:{purim:[3,4],pesach:[4,2,4,8],atzmaut:[4,23],zikaron:[4,22],lag:[5,7],shavuot:[5,23],rh:[9,15],yk:[9,24],sukkot:[9,29,10,5],hanuka:[12,9,12,16]},
-  2035:{purim:[2,21],pesach:[3,21,3,27],atzmaut:[4,12],zikaron:[4,11],lag:[4,25],shavuot:[5,10],rh:[9,4],yk:[9,13],sukkot:[9,18,9,24],hanuka:[11,28,12,5]},
-  2036:{purim:[3,10],pesach:[4,8,4,14],atzmaut:[4,21],zikaron:[4,20],lag:[5,13],shavuot:[5,29],rh:[9,22],yk:[10,1],sukkot:[10,6,10,12],hanuka:[12,17,12,24]},
+const JH={
+  2026:{purim:[3,2],pesach:[4,1,4,8],atzmaut:[4,22],zikaron:[4,20],lag:[5,5],shavuot:[5,21],rh:[9,11],yk:[9,20],sukkot:[9,25,10,2],hanuka:[12,4,12,11]},
+  2027:{purim:[3,22],pesach:[4,21,4,28],atzmaut:[4,12],zikaron:[4,11],lag:[5,24],shavuot:[6,10],rh:[10,1],yk:[10,10],sukkot:[10,15,10,22],hanuka:[12,24,12,31]},
+  2028:{purim:[3,11],pesach:[4,10,4,17],atzmaut:[5,1],zikaron:[4,29],lag:[5,27],shavuot:[5,30],rh:[9,20],yk:[9,29],sukkot:[10,4,10,11],hanuka:[12,12,12,19]},
+  2029:{purim:[2,28],pesach:[3,30,4,6],atzmaut:[4,19],zikaron:[4,17],lag:[5,1],shavuot:[5,19],rh:[9,9],yk:[9,18],sukkot:[9,23,9,30],hanuka:[12,1,12,8]},
+  2030:{purim:[3,18],pesach:[4,17,4,24],atzmaut:[5,6],zikaron:[5,5],lag:[5,20],shavuot:[6,6],rh:[9,27],yk:[10,6],sukkot:[10,11,10,18],hanuka:[12,20,12,27]},
+  2031:{purim:[3,8],pesach:[4,7,4,14],atzmaut:[4,26],zikaron:[4,25],lag:[5,10],shavuot:[5,27],rh:[9,18],yk:[9,27],sukkot:[10,2,10,9],hanuka:[12,10,12,17]},
+  2032:{purim:[3,25],pesach:[4,13,4,20],atzmaut:[4,15],zikaron:[4,14],lag:[5,27],shavuot:[6,1],rh:[9,15],yk:[9,24],sukkot:[9,29,10,6],hanuka:[11,29,12,6]},
+  2033:{purim:[3,13],pesach:[4,2,4,9],atzmaut:[5,2],zikaron:[5,1],lag:[5,16],shavuot:[6,1],rh:[9,4],yk:[9,13],sukkot:[9,18,9,25],hanuka:[12,16,12,23]},
+  2034:{purim:[3,2],pesach:[3,21,3,28],atzmaut:[4,22],zikaron:[4,21],lag:[5,6],shavuot:[5,22],rh:[9,24],yk:[10,3],sukkot:[10,8,10,15],hanuka:[12,7,12,14]},
+  2035:{purim:[2,20],pesach:[4,9,4,16],atzmaut:[4,11],zikaron:[4,10],lag:[5,23],shavuot:[5,28],rh:[9,13],yk:[9,22],sukkot:[9,27,10,4],hanuka:[11,27,12,4]},
+  2036:{purim:[3,9],pesach:[4,7,4,14],atzmaut:[4,20],zikaron:[4,19],lag:[5,12],shavuot:[5,28],rh:[9,21],yk:[9,30],sukkot:[10,5,10,12],hanuka:[12,16,12,23]},
 };
 
   // אירועים בינלאומיים ידועים מראש
