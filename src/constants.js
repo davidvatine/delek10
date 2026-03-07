@@ -44,7 +44,7 @@ export function getMCTX(year){
   const holidays=(m)=>{
     const d=[];
     if(h.purim[0]===m) d.push(`פורים (${h.purim[1]}.${h.purim[0]})`);
-    if(h.pesach[0]===m) d.push(`פסח (${h.pesach[1]}-${h.pesach[2]}=${h.pesach[3] > h.pesach[1] ? h.pesach[3]+'.'+h.pesach[2] : h.pesach[3]+'.'+h.pesach[0]})`);
+    if(h.pesach[0]===m) d.push(`פסח (${h.pesach[1]}-${h.pesach[3]}.${h.pesach[2]})`);
     // פסח שמתחיל במרץ ונגמר באפריל
     if(h.pesach[2]===m && h.pesach[0]!==m) d.push(`פסח - המשך (עד ${h.pesach[3]}.${h.pesach[2]})`);
     if(h.zikaron[0]===m) d.push(`יום הזיכרון (${h.zikaron[1]}.${h.zikaron[0]})`);
