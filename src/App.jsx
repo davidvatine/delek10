@@ -26,7 +26,7 @@ function SharedView({ganttData}){
       </header>
       <main style={{maxWidth:900,margin:"24px auto",padding:"0 16px"}}>
         <GanttTable posts={localPosts} month={month} year={year} extraCtx={extraCtx}/>
-        {localPosts.map(p=><PostCard key={p.id} post={p} ctx={{...MCTX[month],extra:extraCtx}} onUpdate={u=>setLocalPosts(prev=>prev.map(x=>x.id===u.id?u:x))} isSharedView/>)}
+        {localPosts.map(p=><PostCard key={p.id} post={p} ctx={{...getMCTX(year)[month],extra:extraCtx}} onUpdate={u=>setLocalPosts(prev=>prev.map(x=>x.id===u.id?u:x))} isSharedView/>)}
         {!sent?(
           <button onClick={()=>setSent(true)} style={{width:"100%",padding:"16px",background:"#1E3A5F",color:WH,border:"none",borderRadius:14,fontSize:16,fontWeight:900,cursor:"pointer",marginTop:16,fontFamily:"system-ui"}}>
             📨 שלח פידבק לצוות
@@ -144,7 +144,7 @@ useEffect(()=>{const onPop=()=>setView(window.location.pathname==="/gantt"?"setu
 
   if(sharedData)return<SharedView ganttData={sharedData}/>;
 
-  const ctx={...MCTX[month],extra:extraCtx};
+  const ctx={...getMCTX(year)[month],extra:extraCtx};
   const doneCount=posts.filter(p=>p.copy).length;
 
   async function buildGantt(){
@@ -243,10 +243,10 @@ const Header=({subtitle,showBtns})=>(
             </div>
           </div>
           <div style={{background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:12,padding:"12px 16px",marginBottom:14,fontSize:13,color:"#166534",lineHeight:1.7}}>
-            {MCTX[month].emoji} <strong>הקשר ל-{MHE[month]} {year}:</strong><br/>
-            עונה: {MCTX[month].season} | {MCTX[month].weather}<br/>
-            <strong>חגים מאומתים:</strong> {MCTX[month].holidays||"ללא"}<br/>
-            <strong>תקשורת:</strong> {MCTX[month].news}
+            {getMCTX(year)[month].emoji} <strong>הקשר ל-{MHE[month]} {year}:</strong><br/>
+            עונה: {getMCTX(year)[month].season} | {getMCTX(year)[month].weather}<br/>
+            <strong>חגים מאומתים:</strong> {getMCTX(year)[month].holidays||"ללא"}<br/>
+            <strong>תקשורת:</strong> {getMCTX(year)[month].news}
           </div>
           <div style={{marginBottom:14}}>
             <div style={{fontSize:11,color:"#64748B",fontWeight:700,marginBottom:5,textAlign:"right"}}>📰 הקשר תקשורתי נוסף</div>
