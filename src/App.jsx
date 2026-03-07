@@ -174,29 +174,29 @@ useEffect(()=>{const onPop=()=>setView(window.location.pathname==="/gantt"?"setu
   }
 
   /* ── Header ── */
-  const Header=({subtitle,showBtns})=>(
-    <header style={{background:HDR,padding:"12px 24px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:100}}>
-      <div style={{display:"flex",gap:8}}>
-        {showBtns&&<>
-          <button onClick={exportText} style={{background:"rgba(34,197,94,0.85)",color:WH,border:"none",padding:"7px 13px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"system-ui"}}>📤 ייצוא</button>
-          <button onClick={shareGantt} style={{background:"rgba(251,146,60,0.85)",color:WH,border:"none",padding:"7px 13px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"system-ui"}}>🔗 שתף ללקוח</button>
-          <button onClick={()=>setShowSaved(true)} style={{background:"rgba(255,255,255,0.15)",color:WH,border:"none",padding:"7px 13px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"system-ui"}}>📂 גאנטים שמורים</button>
-        </>}
-        {!showBtns&&<button onClick={()=>setShowSaved(true)} style={{background:"rgba(255,255,255,0.15)",color:WH,border:"none",padding:"7px 13px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"system-ui"}}>📂 גאנטים שמורים 1</button>}
+const Header=({subtitle,showBtns})=>(
+  <header style={{background:"linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)",padding:"12px 24px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:100}}>
+    <div style={{display:"flex",alignItems:"center",gap:12}}>
+      <div style={{width:34,height:34,borderRadius:6,overflow:"hidden",background:"rgba(255,255,255,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <SLogo src="/david-white-logo.png" alt="DV" style={{width:34,height:34,objectFit:"contain"}}/>
       </div>
-      <div style={{display:"flex",alignItems:"center",gap:12}}>
-        <div style={{textAlign:"left"}}>
-          <div style={{color:WH,fontWeight:800,fontSize:15}}>{subtitle||`גאנט AI | דלק Ten`}</div>
-          <div style={{color:"rgba(255,255,255,0.7)",fontSize:11}}>9 פוסטים חודשיים | שמירה אוטומטית | ייצוא קל</div>
-          {showBtns&&<div style={{color:"rgba(255,255,255,0.6)",fontSize:10}}>v7.0</div>}
-        </div>
-        <SLogo src={TEN_LOGO} alt="Ten" style={{width:36,height:36,borderRadius:"50%",objectFit:"cover"}}/>
-        <div style={{width:34,height:34,borderRadius:6,overflow:"hidden",background:"rgba(255,255,255,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <SLogo src="/david-white-logo.png" alt="DV" style={{width:34,height:34,objectFit:"contain"}}/>
-        </div>
+      <SLogo src={TEN_LOGO} alt="Ten" style={{width:36,height:36,borderRadius:"50%",objectFit:"cover"}}/>
+      <div style={{textAlign:"right"}}>
+        <div style={{color:"#fff",fontWeight:800,fontSize:15}}>{subtitle||`גאנט AI | דלק Ten`}</div>
+        <div style={{color:"rgba(255,255,255,0.7)",fontSize:11}}>9 פוסטים חודשיים | שמירה אוטומטית | ייצוא קל</div>
+        {showBtns&&<div style={{color:"rgba(255,255,255,0.6)",fontSize:10}}>v7.0</div>}
       </div>
-    </header>
-  );
+    </div>
+    <div style={{display:"flex",gap:8}}>
+      {showBtns&&<>
+        <button onClick={exportText} style={{background:"rgba(34,197,94,0.85)",color:"#fff",border:"none",padding:"7px 13px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"system-ui"}}>📤 ייצוא</button>
+        <button onClick={shareGantt} style={{background:"rgba(251,146,60,0.85)",color:"#fff",border:"none",padding:"7px 13px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"system-ui"}}>🔗 שתף ללקוח</button>
+        <button onClick={()=>setShowSaved(true)} style={{background:"rgba(255,255,255,0.15)",color:"#fff",border:"none",padding:"7px 13px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"system-ui"}}>📂 גאנטים שמורים</button>
+      </>}
+      {!showBtns&&<button onClick={()=>setShowSaved(true)} style={{background:"rgba(255,255,255,0.15)",color:"#fff",border:"none",padding:"7px 13px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"system-ui"}}>📂 גאנטים שמורים</button>}
+    </div>
+  </header>
+);
 
   /* ── עמוד בחר לקוח ── */
   if(view==="select")return(
