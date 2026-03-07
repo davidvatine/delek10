@@ -324,14 +324,12 @@ export default function App() {
   if (view === "saved") return (
     <SavedPage
       onBack={() => nav("/gantt", "setup")}
-     onLoad={async data => {
+    onLoad={data => {
   setMonth(data.month); setYear(data.year);
   setExtraCtx(data.extraCtx || ""); setPosts(data.posts || []);
-  // שמור מחדש ב-Supabase וקבל מפתח ייחודי
-  const key = await saveGantt({ month: data.month, year: data.year, extraCtx: data.extraCtx || "", posts: data.posts || [] });
-  setShareKey(key);
-  try { sessionStorage.setItem("ganttState", JSON.stringify({ month: data.month, year: data.year, extraCtx: data.extraCtx || "", posts: data.posts || [], shareKey: key })); } catch {}
-  nav("/gantt?loaded=" + key, "gantt");
+  setShareKey(null);
+  try { sessionStorage.setItem("ganttState", JSON.stringify({ month: data.month, year: data.year, extraCtx: data.extraCtx || "", posts: data.posts || [], shareKey: null })); } catch {}
+  nav("/gantt", "gantt");
 }}
     />
   );
