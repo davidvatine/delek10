@@ -10,7 +10,13 @@ import PostCard from "./PostCard.jsx";
 function getInitView() {
   const p = window.location.pathname;
   if (p === "/saved") return "saved";
-  if (p === "/gantt") return "setup";
+  if (p === "/gantt") {
+    try {
+      const s = JSON.parse(sessionStorage.getItem("ganttState") || "{}");
+      if (s.posts?.length > 0) return "gantt";
+    } catch {}
+    return "setup";
+  }
   return "select";
 }
 
