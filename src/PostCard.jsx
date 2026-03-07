@@ -1,3 +1,4 @@
+import{Badge,callAI,buildPrompt,uploadImage}from"./utils.jsx";
 import React,{useState,useRef}from"react";
 import{PU,WH,BR,DK,BL,RD}from"./constants.js";
 import{Badge,callAI,buildPrompt}from"./utils.jsx";
@@ -19,11 +20,7 @@ export default function PostCard({post,ctx,onUpdate,isSharedView}){
   }
   function save(){onUpdate({...post,copy:txt});setEditing(false);}
 
-  function handleImg(file){
-    const reader=new FileReader();
-    reader.onload=e=>{setImg(e.target.result);onUpdate({...post,image:e.target.result});};
-    reader.readAsDataURL(file);
-  }
+ async function handleImg(file){ const url=await uploadImage(file); if(url){setImg(url);onUpdate({...post,image:url});} }
 
   const statusIcon=post.copy?"✅":isPromo?"⭕":"⏳";
   const statusTxt=post.copy?"מוכן":"ממתין לייצור אוטומטי";
@@ -46,7 +43,7 @@ export default function PostCard({post,ctx,onUpdate,isSharedView}){
         <div style={{width:150,padding:14,background:"#F9FAFB",display:"flex",flexDirection:"column",alignItems:"center",gap:8,borderLeft:`1px solid ${BR}`,flexShrink:0}}>
           <div style={{fontSize:11,color:"#64748B",fontWeight:700}}>🖼️ תמונה לפוסט</div>
           {img?(
-            <img src={img} style={{width:120,height:90,objectFit:"cover",borderRadius:8,cursor:"pointer"}} onClick={()=>fileRef.current?.click()}/>
+            <img src={img} style={{width:120,height:120,objectFit:"contain",borderRadius:8,cursor:"pointer",background:"#F8FAFC"}} onClick={()=>fileRef.current?.click()}/>
           ):(
             <div onClick={()=>fileRef.current?.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)handleImg(f);}}
               style={{width:120,height:90,border:"2px dashed #CBD5E1",borderRadius:10,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",color:"#94A3B8",fontSize:11,textAlign:"center",cursor:"pointer"}}>
