@@ -286,8 +286,9 @@ export default function App() {
   }
 
   async function shareGantt() {
-    const key = shareKey || (await saveGantt({ month, year, extraCtx, posts }));
-    if (!shareKey) setShareKey(key);
+  const key = await saveGantt({ month, year, extraCtx, posts });
+  setShareKey(key);
+    
     const url = `${window.location.origin}?gantt=${key}`;
     navigator.clipboard.writeText(url).then(() => alert(`הלינק הועתק:\n${url}`));
   }
