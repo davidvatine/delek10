@@ -1,5 +1,5 @@
 import React,{useState,useEffect}from"react";
-import{PU,BG,WH,BR,DK,BL,HDR,MHE,MCTX,YEARS,TEN_LOGO,DV_LOGO}from"./constants.js";
+import{PU,BG,WH,BR,DK,BL,HDR,MHE,getMCTX,YEARS,TEN_LOGO,DV_LOGO}from"./constants.js";
 import{SLogo,Badge,dayName,callAI,buildPrompt,saveGantt,loadGantt,listGantts}from"./utils.jsx";
 import PostCard from"./PostCard.jsx";
 
