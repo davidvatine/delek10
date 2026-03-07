@@ -180,8 +180,8 @@ const Header=({subtitle,showBtns})=>(
      <SLogo src="/david-white-logo.png" alt="DV" style={{width:52,height:52,objectFit:"contain"}}/>
       <SLogo src={TEN_LOGO} alt="Ten" style={{width:36,height:36,borderRadius:"50%",objectFit:"cover"}}/>
       <div style={{textAlign:"right"}}>
-        <div style={{color:"#fff",fontWeight:800,fontSize:15}}>{subtitle||`גאנט AI | דלק Ten`}</div>
-        <div style={{color:"rgba(255,255,255,0.7)",fontSize:11}}>9 פוסטים חודשיים | שמירה אוטומטית | ייצוא קל</div>
+        <div style={{color:"#fff",fontWeight:800,fontSize:15}}>{subtitle||`גאנט סושיאל | דלק Ten`}</div>
+       
         {showBtns&&<div style={{color:"rgba(255,255,255,0.6)",fontSize:10}}>v7.0</div>}
       </div>
     </div>
