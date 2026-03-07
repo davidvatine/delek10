@@ -8,6 +8,17 @@ export function dayName(d,m,y){return["ראשון","שני","שלישי","רבי
 export async function callAI(prompt){try{const r=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});if(!r.ok)throw new Error();const d=await r.json();return(d.text||"").trim();}catch{return"שגיאה. נסה שוב.";}}
 export function buildPrompt(type,ctx,date,day,promoText=""){const{season,weather,holidays,news,emoji}=ctx;const HL=holidays||"ללא";const NW=news||(ctx.extra||"");const base="אתה כותב פוסטים לדף הפייסבוק הרשמי של דלק Ten.\nעונה: "+season+" | "+weather+" "+emoji+"\nחגים: "+HL+"\nהקשר: "+NW+(ctx.extra?" | "+ctx.extra:"")+"\nתאריך: "+(date||"לפי מבצע")+(day?" (יום "+day+")":"")+"\nפורמט: 3-5 פסקאות, אמוגי, CTA בסוף.\n";if(type==="שני חסכוני")return base+"כתוב פוסט יום שני חסכוני. 40 אגורות חיסכון לליטר. סיים: עוד אין לכם את האפליקציה? 👇 "+APP_LINK+"\n"+DISCLAIMER;if(type==="חג / אירוע")return base+"כתוב פוסט לחג: "+HL+". קשר לחג, Ten בשבילכם. סיים: "+DISCLAIMER;if(type==="מצחיק / אפליקציה")return base+"כתוב פוסט הומוריסטי על האפליקציה. סיים: "+APP_LINK;if(type==="דרושים")return base+"כתוב פוסט גיוס עובדים. צוות משפחתי, תנאים טובים.";if(type==="פוסט מבצע")return base+"כתוב פוסט מבצע: "+(promoText||"מוצר/שירות מיוחד")+". סיים: "+DISCLAIMER;return base+"כתוב פוסט כללי לדלק Ten.";}
 const SB_HDR={"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY};
+export async function uploadImage(file){
+  const ext=file.name.split('.').pop();
+  const path=`images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const res=await fetch(`${SUPABASE_URL}/storage/v1/object/gantt-images/${path}`,{
+    method:"POST",
+    headers:{...SB_HDR,"Content-Type":file.type},
+    body:file
+  });
+  if(!res.ok) return null;
+  return `${SUPABASE_URL}/storage/v1/object/public/gantt-images/${path}`;
+}
 export async function saveGantt(ganttData){const id=ganttData.year+"-"+ganttData.month+"-"+Math.random().toString(36).slice(2,7);try{await fetch(SUPABASE_URL+"/rest/v1/gantts",{method:"POST",headers:{...SB_HDR,"Prefer":"return=minimal"},body:JSON.stringify({id,year:ganttData.year,month:ganttData.month,ne:ganttData.extraCtx||"",posts:ganttData.posts,created_at:new Date().toISOString()})});}catch(e){console.error("save error",e);}return id;}
 export async function loadGantt(shareKey){try{const r=await fetch(SUPABASE_URL+"/rest/v1/gantts?id=eq."+shareKey+"&select=id,year,month,ne,posts,created_at",{headers:SB_HDR});const d=await r.json();if(!d[0])return null;const g=d[0];return{month:g.month,year:g.year,extraCtx:g.ne||"",posts:g.posts||[]};}catch{return null;}}
 export async function listGantts(){try{const r=await fetch(SUPABASE_URL+"/rest/v1/gantts?select=id,year,month,ne,posts,created_at&order=created_at.desc&limit=30",{headers:SB_HDR});const d=await r.json();if(!Array.isArray(d))return[];return d.map(g=>({id:g.id,created_at:g.created_at,data:{month:g.month,year:g.year,extraCtx:g.ne||"",posts:g.posts||[]}}));}catch{return[];}}
