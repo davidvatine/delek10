@@ -138,7 +138,7 @@ useEffect(()=>{const onPop=()=>setView(window.location.pathname==="/gantt"?"setu
   useEffect(()=>{
     try{
       const saved=sessionStorage.getItem("ganttState");
-      if(saved){const s=JSON.parse(saved);setView(s.view);setMonth(s.month);setYear(s.year);setExtraCtx(s.extraCtx||"");setPosts(s.posts||[]);setShareKey(s.shareKey||null);}
+      if(saved){const s=JSON.parse(saved);setMonth(s.month);setYear(s.year);setExtraCtx(s.extraCtx||"");setPosts(s.posts||[]);setShareKey(s.shareKey||null);}
     }catch{}
   },[]);
 
