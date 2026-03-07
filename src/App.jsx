@@ -1,3 +1,4 @@
+import ReactDOM from "react-dom/client";
 import { useState, useEffect } from "react";
 
 const BL="#1565C0", BLl="#1E88E5", RD="#D32F2F", WH="#fff";
