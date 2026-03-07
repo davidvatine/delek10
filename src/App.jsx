@@ -144,8 +144,8 @@ function SavedPage({ onBack, onLoad }) {
     <div style={{ minHeight: "100vh", background: "#F1F5F9", direction: "rtl", fontFamily: "system-ui" }}>
       <header style={{ background: "linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div onClick={onBack} style={{ cursor: "pointer" }}>
-            <SLogo src="/david-white-logo.png" alt="DV" style={{ width: 52, height: 52, objectFit: "contain" }} />
+         <div onClick={() => { window.history.pushState({}, "", "/"); window.dispatchEvent(new PopStateEvent("popstate")); }} style={{ cursor: "pointer" }}>
+  <SLogo src="/david-white-logo.png"
           </div>
           <SLogo src={TEN_LOGO} alt="Ten" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
           <div style={{ textAlign: "right" }}>
@@ -318,14 +318,15 @@ export default function App() {
   if (view === "saved") return (
     <SavedPage
       onBack={() => nav("/gantt", "setup")}
-      onLoad={data => {
-        setMonth(data.month); setYear(data.year);
-        setExtraCtx(data.extraCtx || ""); setPosts(data.posts || []);
-        setShareKey(null);
-        // שמירה ב-sessionStorage כדי שרענון יעבוד
-        try { sessionStorage.setItem("ganttState", JSON.stringify({ month: data.month, year: data.year, extraCtx: data.extraCtx || "", posts: data.posts || [], shareKey: null })); } catch {}
-        nav("/gantt", "gantt");
-      }}
+     onLoad={async data => {
+  setMonth(data.month); setYear(data.year);
+  setExtraCtx(data.extraCtx || ""); setPosts(data.posts || []);
+  // שמור מחדש ב-Supabase וקבל מפתח ייחודי
+  const key = await saveGantt({ month: data.month, year: data.year, extraCtx: data.extraCtx || "", posts: data.posts || [] });
+  setShareKey(key);
+  try { sessionStorage.setItem("ganttState", JSON.stringify({ month: data.month, year: data.year, extraCtx: data.extraCtx || "", posts: data.posts || [], shareKey: key })); } catch {}
+  nav("/gantt?loaded=" + key, "gantt");
+}}
     />
   );
 
