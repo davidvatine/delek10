@@ -259,8 +259,8 @@ const Header=({subtitle,showBtns})=>(
             💾 שמירה אוטומטית ← רענון הדף לא ימחק כלום<br/>
             📤 ייצוא: העתק טקסט / תצוגה מקדימה ללקוח
           </div>
-          <button onClick={buildGantt} style={{width:"100%",padding:"17px",background:"#1E3A5F",color:WH,border:"none",borderRadius:14,fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>
-            🚀 בנה גאנט ל-{MHE[month]} {year}
+          <button onClick={buildGantt} style={{width:"100%",padding:"17px",background: rgb(21, 101, 192),color:WH,border:"none",borderRadius:14,fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>
+             בנה גאנט ל-{MHE[month]} {year} 🚀
           </button>
         </div>
       </div>
