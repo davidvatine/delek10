@@ -104,7 +104,7 @@ function SavedModal({onClose,onLoad}){
 
 /* ── App ראשי ── */
 export default function App(){
-const initView = window.location.pathname === "/" ? "select" : window.location.pathname.replace("/","");
+const initView = window.location.pathname === "/gantt" ? "setup" : "select";
 const[view,setView]=useState(initView);
   const[month,setMonth]=useState(new Date().getMonth()+1);
   const[year,setYear]=useState(new Date().getFullYear());
