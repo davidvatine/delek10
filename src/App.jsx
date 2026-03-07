@@ -285,13 +285,9 @@ export default function App() {
     setShareKey(key);
   }
 
-  async function shareGantt() {
-    const key = shareKey || (await saveGantt({ month, year, extraCtx, posts }));
-    if (!shareKey) setShareKey(key);
-    const url = `${window.location.origin}?gantt=${key}`;
-    navigator.clipboard.writeText(url).then(() => alert(`הלינק הועתק:\n${url}`));
-  }
-
+ async function shareGantt() {
+  const key = await saveGantt({ month, year, extraCtx, posts });
+  setShareKey(key);
   function exportText() {
     const lines = posts.filter(p => p.copy).map(p => `--- #${p.id} | ${p.date || "לפי מבצע"} | ${p.type} ---\n${p.copy}\n`);
     navigator.clipboard.writeText(`גאנט תוכן דלק Ten | ${MHE[month]} ${year}\n${"=".repeat(50)}\n\n${lines.join("\n")}`).then(() => alert("הועתק ללוח!"));
