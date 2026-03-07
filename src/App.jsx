@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 
-// --- הגדרות עיצוב וקבועים ---
 const BL="#1565C0", BLl="#1E88E5", RD="#D32F2F", WH="#fff";
 const BG="#EEF2F7", BR="#CFD8DC", DK="#1A2733";
 const APP_LINK    = "https://ten.onelink.me/Cdb1/e3lfcju1";
@@ -12,7 +11,7 @@ const MHE = ["","ינואר","פברואר","מרץ","אפריל","מאי","יו
 const DHE = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const STORAGE_KEY = "ten-gantt-v5";
 
-// משתנים ריקים למניעת שגיאות - אפשר להדביק פה את ה-Base64 הארוך אם תרצה בעתיד
+// משתנים ריקים למניעת שגיאות לוגו
 const DAVID_LOGO = ""; 
 const LOGO_SRC = "";
 
@@ -37,41 +36,33 @@ function fmt(d){ return d ? `${d.getDate()}.${d.getMonth()+1}.${String(d.getFull
 function dn(d){ return d ? DHE[d.getDay()] : "—"; }
 
 function buildSchedule(y,m){
-  const r=[]; const d=new Date(y,m-1,1);
-  const mons = [];
+  const mons=[]; const d=new Date(y,m-1,1);
   while(d.getDay()!==1) d.setDate(d.getDate()+1);
   while(d.getMonth()===m-1){ mons.push(new Date(d)); d.setDate(d.getDate()+7); }
-  
-  const posts = [];
+  const posts=[];
   if(mons[0]) posts.push({id:"mon1",date:mons[0],type:"שני חסכוני",tk:"monday"});
-  if(mons[mons.length-1]) posts.push({id:"mon2",date:mons[mons.length-1],type:"שני חסכוני",tk:"monday"});
-  
   posts.push({id:"hol",date:new Date(y,m-1,10),type:"חג / אירוע",tk:"holiday"});
   posts.push({id:"fun",date:new Date(y,m-1,15),type:"מצחיק / אפליקציה",tk:"fun"});
   posts.push({id:"rec",date:new Date(y,m-1,20),type:"דרושים",tk:"recruit"});
-  
+  if(mons[mons.length-1]) posts.push({id:"mon2",date:mons[mons.length-1],type:"שני חסכוני",tk:"monday"});
   [1,2,3,4].forEach(i=>posts.push({id:`pr${i}`,date:null,type:"פוסט מבצע",tk:"promo",promoText:""}));
   return posts.map((p,i)=>({...p,num:i+1}));
 }
 
-// --- פונקציית ה-AI המתוקנת ---
-async function callAI(prompt) {
+async function callAI(prompt){
   try {
     const r = await fetch("/api/ai", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt })
     });
-    if (!r.ok) throw new Error("API Error");
     const d = await r.json();
     return (d.text || "").trim();
   } catch (e) {
-    console.error(e);
-    return "שגיאה בייצור הטקסט. נסה שוב.";
+    return "שגיאה בחיבור ל-AI. נסה שנית.";
   }
 }
 
-// --- רכיבי ויזואל ---
 function Badge({type}){
   const m={"שני חסכוני":["#E3F2FD",BL,"#90CAF9"],"חג / אירוע":["#E8F5E9","#1B5E20","#A5D6A7"],"מצחיק / אפליקציה":["#FFF3E0","#E65100","#FFCC80"],"דרושים":["#FCE4EC","#C62828","#F48FB1"],"פוסט מבצע":["#FFF8E1","#E65100","#FFE082"]};
   const [bg,color,border]=m[type]||["#F5F5F5","#333","#DDD"];
@@ -80,70 +71,57 @@ function Badge({type}){
 
 function PostCard({post, c, month, ne, onUpdate}){
   const [loading, setLoading] = useState(false);
-  const status = post.copy ? "done" : "wait";
-
-  async function generate(){
+  async function gen(){
     setLoading(true);
-    const p = `כתוב פוסט לרשת Ten עבור ${post.type}. תאריך: ${fmt(post.date)}. הקשר: ${ne || c.news}`;
-    const copy = await callAI(p);
+    const copy = await callAI(`כתוב פוסט ל-Ten עבור ${post.type}. תאריך: ${fmt(post.date)}. הקשר: ${ne || c.news}`);
     onUpdate({...post, copy});
     setLoading(false);
   }
-
   return (
-    <div style={{background:WH, borderRadius:12, border:`1px solid ${BR}`, marginBottom:10, padding:15, direction:"rtl"}}>
-      <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+    <div style={{background:WH,borderRadius:12,border:`1px solid ${BR}`,marginBottom:10,padding:16,direction:"rtl",boxShadow:"0 2px 5px rgba(0,0,0,0.05)"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
         <span style={{fontWeight:800}}>#{post.num} - {post.date ? fmt(post.date) : "פוסט מבצע"}</span>
-        <Badge type={post.type} />
+        <Badge type={post.type}/>
       </div>
-      <div style={{marginTop:10, minHeight:60, background:"#f9f9f9", padding:10, borderRadius:8}}>
-        {loading ? "מייצר..." : post.copy || "לחץ לייצור פוסט"}
+      <div style={{background:"#f9f9f9",padding:12,borderRadius:8,fontSize:14,minHeight:50,whiteSpace:"pre-wrap"}}>
+        {loading ? "⌛ מייצר תוכן..." : post.copy || "טרם נוצר תוכן לפוסט זה"}
       </div>
-      {!post.copy && <button onClick={generate} style={{marginTop:10, background:BL, color:WH, border:"none", padding:"5px 15px", borderRadius:5, cursor:"pointer"}}>ייצר פוסט</button>}
+      {!post.copy && <button onClick={gen} style={{marginTop:10,background:BL,color:WH,border:"none",padding:"6px 15px",borderRadius:6,cursor:"pointer",fontWeight:700}}>ייצר תוכן</button>}
     </div>
   );
 }
 
-// --- האפליקציה הראשית ---
-export function TenGanttAI() {
+export function TenGanttAI(){
   const [posts, setPosts] = useState([]);
   const [phase, setPhase] = useState("setup");
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [month, setMonth] = useState(new Date().getMonth()+1);
   const [year, setYear] = useState(2025);
 
-  function handleBuild() {
-    const arr = buildSchedule(year, month);
-    setPosts(arr);
-    setPhase("gantt");
-  }
-
-  if (phase === "setup") {
-    return (
-      <div style={{padding: 20, direction: "rtl", textAlign: "center", fontFamily: "Arial"}}>
-        <h2>יוצר גאנט תוכן - Ten</h2>
-        <select value={month} onChange={e => setMonth(Number(e.target.value))}>
-          {MHE.map((m, i) => i > 0 && <option key={i} value={i}>{m}</option>)}
-        </select>
-        <button onClick={handleBuild} style={{marginRight: 10, padding: "5px 20px", background: BL, color: WH, border: "none", borderRadius: 5}}>בנה גאנט</button>
-      </div>
-    );
-  }
-
   return (
-    <div style={{padding: 20, direction: "rtl", background: BG, minHeight: "100vh", fontFamily: "Arial"}}>
-      <h2 style={{color: BL}}>גאנט לחודש {MHE[month]} {year}</h2>
-      {posts.map(p => (
-        <PostCard key={p.id} post={p} c={getCtx(month)} month={month} onUpdate={(upd) => setPosts(prev => prev.map(item => item.id === upd.id ? upd : item))} />
-      ))}
+    <div style={{minHeight:"100vh",background:BG,fontFamily:"Arial,sans-serif",direction:"rtl",padding:20}}>
+      {phase === "setup" ? (
+        <div style={{maxWidth:400,margin:"50px auto",background:WH,padding:30,borderRadius:15,textAlign:"center",boxShadow:"0 5px 15px rgba(0,0,0,0.1)"}}>
+          <h2 style={{color:BL}}>יוצר גאנט תוכן Ten</h2>
+          <select value={month} onChange={e=>setMonth(Number(e.target.value))} style={{padding:10,width:"100%",marginBottom:15,borderRadius:8}}>
+            {MHE.map((m,i)=>i>0 && <option key={i} value={i}>{m}</option>)}
+          </select>
+          <button onClick={()=>{setPosts(buildSchedule(year,month));setPhase("gantt");}} style={{width:"100%",padding:12,background:BL,color:WH,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer"}}>בנה גאנט</button>
+        </div>
+      ) : (
+        <div style={{maxWidth:800,margin:"0 auto"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+             <h2 style={{color:BL,margin:0}}>גאנט {MHE[month]} {year}</h2>
+             <button onClick={()=>setPhase("setup")} style={{background:"none",border:`1px solid ${BL}`,color:BL,padding:"5px 10px",borderRadius:5,cursor:"pointer"}}>חזור</button>
+          </div>
+          {posts.map(p=><PostCard key={p.id} post={p} c={getCtx(month)} month={month} onUpdate={u=>setPosts(prev=>prev.map(i=>i.id===u.id?u:i))}/>)}
+        </div>
+      )}
     </div>
   );
 }
 
-// --- חיבור ל-HTML (קריטי למניעת דף לבן) ---
 const rootElement = document.getElementById("root");
 if (rootElement) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(<TenGanttAI />);
+  ReactDOM.createRoot(rootElement).render(<TenGanttAI />);
 }
-
 export default TenGanttAI;
