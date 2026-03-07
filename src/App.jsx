@@ -192,7 +192,7 @@ useEffect(()=>{const onPop=()=>setView(window.location.pathname==="/gantt"?"setu
         </div>
         <SLogo src={TEN_LOGO} alt="Ten" style={{width:36,height:36,borderRadius:"50%",objectFit:"cover"}}/>
         <div style={{width:34,height:34,borderRadius:6,overflow:"hidden",background:"rgba(255,255,255,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <SLogo src={DV_LOGO} alt="DV" style={{width:34,height:34,objectFit:"contain"}}/>
+          <SLogo src="/david-white-logo.png" alt="DV" style={{width:34,height:34,objectFit:"contain"}}/>
         </div>
       </div>
     </header>
