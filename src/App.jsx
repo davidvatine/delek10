@@ -244,9 +244,10 @@ const Header=({subtitle,showBtns})=>(
           </div>
           <div style={{background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:12,padding:"12px 16px",marginBottom:14,fontSize:13,color:"#166534",lineHeight:1.7}}>
             {getMCTX(year)[month].emoji} <strong>הקשר ל-{MHE[month]} {year}:</strong><br/>
-            עונה: {getMCTX(year)[month].season} | {getMCTX(year)[month].weather}<br/>
-            <strong>חגים מאומתים:</strong> {getMCTX(year)[month].holidays||"ללא"}<br/>
-            <strong>תקשורת:</strong> {getMCTX(year)[month].news}
+עונה: {getMCTX(year)[month].season} | {getMCTX(year)[month].weather}<br/>
+<strong>חגים מאומתים:</strong> {getMCTX(year)[month].holidays||"ללא"}<br/>
+{getMCTX(year)[month].special&&<><strong>ימים מיוחדים:</strong> {getMCTX(year)[month].special}<br/></>}
+{getMCTX(year)[month].news&&<><strong>אירועים עולמיים:</strong> {getMCTX(year)[month].news}<br/></>}
           </div>
           <div style={{marginBottom:14}}>
             <div style={{fontSize:11,color:"#64748B",fontWeight:700,marginBottom:5,textAlign:"right"}}>📰 הקשר תקשורתי נוסף</div>
