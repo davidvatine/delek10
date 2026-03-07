@@ -250,7 +250,7 @@ const Header=({subtitle,showBtns})=>(
           </div>
           <div style={{marginBottom:14}}>
             <div style={{fontSize:11,color:"#64748B",fontWeight:700,marginBottom:5,textAlign:"right"}}>📰 הקשר תקשורתי נוסף</div>
-            <textarea value={extraCtx} onChange={e=>setExtraCtx(e.target.value)} placeholder="למשל: עליה במחירי דלק, גל חום..."
+            <textarea value={extraCtx} onChange={e=>setExtraCtx(e.target.value)} placeholder="למשל: עליה במחירי דלק, גל חום, מלחמה, בחירות..."
               style={{width:"100%",padding:"10px 12px",borderRadius:10,border:`2px solid ${BR}`,fontSize:13,minHeight:68,resize:"vertical",fontFamily:"system-ui",boxSizing:"border-box"}}/>
           </div>
           <div style={{background:"#FFF7ED",border:"1px solid #FED7AA",borderRadius:12,padding:"12px 16px",marginBottom:18,fontSize:13,color:"#92400E",lineHeight:1.8}}>
