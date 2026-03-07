@@ -104,7 +104,8 @@ function SavedModal({onClose,onLoad}){
 
 /* ── App ראשי ── */
 export default function App(){
-  const[view,setView]=useState("select");
+const initView = window.location.pathname === "/" ? "select" : window.location.pathname.replace("/","");
+const[view,setView]=useState(initView);
   const[month,setMonth]=useState(new Date().getMonth()+1);
   const[year,setYear]=useState(new Date().getFullYear());
   const[extraCtx,setExtraCtx]=useState("");
@@ -204,7 +205,7 @@ export default function App(){
         <SLogo src={DV_LOGO} alt="David Vatine" style={{width:130,height:65,objectFit:"contain",borderRadius:8,margin:"0 auto 28px",display:"block"}}/>
         <h2 style={{color:PU,fontWeight:800,fontSize:30,marginBottom:8}}>בחר לקוח</h2>
         <p style={{color:"#64748B",marginBottom:32}}>בחר לקוח ליצירת גאנט</p>
-        <div onClick={()=>setView("setup")}
+        <div onClick={()=>{ window.history.pushState({},'','/gantt'); setView("setup"); }}
           style={{border:`2px solid ${PU}`,borderRadius:22,padding:"20px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",background:WH,marginBottom:14}}
           onMouseEnter={e=>e.currentTarget.style.boxShadow="0 8px 25px rgba(109,40,217,0.2)"}
           onMouseLeave={e=>e.currentTarget.style.boxShadow="none"}>
@@ -298,7 +299,7 @@ export default function App(){
           <strong>📤 איך לשתף ללקוח:</strong><br/>
           לחץ "שתף ללקוח" ← הלינק מועתק אוטומטית ← שלח ללקוח בוואטסאפ/מייל
         </div>
-        <button onClick={()=>setView("setup")} style={{background:"#F1F5F9",border:"none",padding:"9px 18px",borderRadius:9,fontWeight:700,cursor:"pointer",color:"#475569",margin:"12px 0",fontFamily:"system-ui",fontSize:13}}>
+        <button onClick={()=>{ window.history.pushState({},'','/gantt'); setView("setup"); }} style={{background:"#F1F5F9",border:"none",padding:"9px 18px",borderRadius:9,fontWeight:700,cursor:"pointer",color:"#475569",margin:"12px 0",fontFamily:"system-ui",fontSize:13}}>
           ⚙️ חזרה להגדרות
         </button>
       </main>
