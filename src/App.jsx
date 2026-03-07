@@ -177,7 +177,9 @@ useEffect(()=>{const onPop=()=>setView(window.location.pathname==="/gantt"?"setu
 const Header=({subtitle,showBtns})=>(
   <header style={{background:"linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)",padding:"12px 24px",margin:0,display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:100}}>
     <div style={{display:"flex",alignItems:"center",gap:12}}>
-      <SLogo src="/david-white-logo.png" alt="DV" onClick={()=>{window.history.pushState({},'','/');setView("select");}} style={{width:52,height:52,objectFit:"contain",cursor:"pointer"}}/>
+<div onClick={()=>{window.history.pushState({},'','/');setView("select");}} style={{cursor:"pointer"}}>
+  <SLogo src="/david-white-logo.png" alt="DV" style={{width:52,height:52,objectFit:"contain"}}/>
+</div>
       <SLogo src={TEN_LOGO} alt="Ten" style={{width:36,height:36,borderRadius:"50%",objectFit:"cover"}}/>
       <div style={{textAlign:"right"}}>
         <div style={{color:"#fff",fontWeight:800,fontSize:15}}>{subtitle||`גאנט סושיאל | דלק Ten`}</div>
