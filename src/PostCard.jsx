@@ -1,6 +1,6 @@
 import React,{useState,useRef}from"react";
 import{PU,WH,BR,DK,BL,RD}from"./constants.js";
-import{Badge,callAI,buildPrompt}from"./utils.js";
+import{Badge,callAI,buildPrompt}from"./utils.jsx";
 
 export default function PostCard({post,ctx,onUpdate,isSharedView}){
   const[editing,setEditing]=useState(false);
