@@ -112,7 +112,7 @@ function GanttTable({ posts, month, year, extraCtx, openRow, setOpenRow }) {
 // ─────────────────────────────────────────────
 function SavedPage({ onBack, onLoad }) {
   const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); const [confirmId, setConfirmId] = useState(null);
 
   useEffect(() => {
     listGantts().then(d => {
