@@ -42,23 +42,23 @@ const JH={
   const intl=(INTL[year]||{});
 
   const holidays=(m)=>{
-    const d=[];
-    if(h.purim[0]===m) d.push(`פורים (${h.purim[1]}.${h.purim[0]})`);
-    if(h.pesach[0]===m) d.push(`פסח (${h.pesach[1]}-${h.pesach[3]}.${h.pesach[2]})`);
-    // פסח שמתחיל במרץ ונגמר באפריל
-    if(h.pesach[2]===m && h.pesach[0]!==m) d.push(`פסח - המשך (עד ${h.pesach[3]}.${h.pesach[2]})`);
-    if(h.zikaron[0]===m) d.push(`יום הזיכרון (${h.zikaron[1]}.${h.zikaron[0]})`);
-    if(h.atzmaut[0]===m) d.push(`יום העצמאות (${h.atzmaut[1]}.${h.atzmaut[0]})`);
-    if(h.lag[0]===m) d.push(`לג בעומר (${h.lag[1]}.${h.lag[0]})`);
-    if(h.shavuot[0]===m) d.push(`שבועות (${h.shavuot[1]}.${h.shavuot[0]})`);
-    if(h.rh[0]===m) d.push(`ראש השנה (${h.rh[1]}.${h.rh[0]})`);
-    if(h.yk[0]===m) d.push(`יום כיפור (${h.yk[1]}.${h.yk[0]})`);
-    if(h.sukkot[0]===m) d.push(`סוכות (${h.sukkot[1]}.${h.sukkot[0]}-${h.sukkot[3]}.${h.sukkot[2]})`);
-    if(h.sukkot[2]===m && h.sukkot[0]!==m) d.push(`שמחת תורה (${h.sukkot[3]}.${h.sukkot[2]})`);
-    if(h.hanuka[0]===m) d.push(`חנוכה (${h.hanuka[1]}.${h.hanuka[0]}-${h.hanuka[3]}.${h.hanuka[2]})`);
-    if(h.hanuka[2]===m && h.hanuka[0]!==m) d.push(`חנוכה - המשך (עד ${h.hanuka[3]}.${h.hanuka[2]})`);
-    return d.join(' | ')||'ללא';
-  };
+  const d=[];
+  const fmt=(d1,d2,mo)=>d1===d2?`${d1}.${mo}`:`${d1}-${d2}.${mo}`;
+  if(h.purim[0]===m) d.push(`פורים (${fmt(h.purim[1],h.purim[1]+1,h.purim[0])})`);
+  if(h.pesach[0]===m) d.push(`פסח (${h.pesach[1]}-${h.pesach[3]}.${h.pesach[2]})`);
+  if(h.pesach[2]===m&&h.pesach[0]!==m) d.push(`פסח המשך (עד ${h.pesach[3]}.${h.pesach[2]})`);
+  if(h.zikaron[0]===m) d.push(`יום הזיכרון (${fmt(h.zikaron[1],h.zikaron[1]+1,h.zikaron[0])})`);
+  if(h.atzmaut[0]===m) d.push(`יום העצמאות (${fmt(h.atzmaut[1],h.atzmaut[1]+1,h.atzmaut[0])})`);
+  if(h.lag[0]===m) d.push(`לג בעומר (${fmt(h.lag[1],h.lag[1]+1,h.lag[0])})`);
+  if(h.shavuot[0]===m) d.push(`שבועות (${fmt(h.shavuot[1],h.shavuot[1]+1,h.shavuot[0])})`);
+  if(h.rh[0]===m) d.push(`ראש השנה (${fmt(h.rh[1],h.rh[1]+2,h.rh[0])})`);
+  if(h.yk[0]===m) d.push(`יום כיפור (${fmt(h.yk[1],h.yk[1]+1,h.yk[0])})`);
+  if(h.sukkot[0]===m) d.push(`סוכות (${h.sukkot[1]}-${h.sukkot[3]}.${h.sukkot[2]})`);
+  if(h.sukkot[2]===m&&h.sukkot[0]!==m) d.push(`שמחת תורה (${fmt(h.sukkot[3],h.sukkot[3]+1,h.sukkot[2])})`);
+  if(h.hanuka[0]===m) d.push(`חנוכה (${h.hanuka[1]}-${h.hanuka[3]}.${h.hanuka[2]})`);
+  if(h.hanuka[2]===m&&h.hanuka[0]!==m) d.push(`חנוכה המשך (עד ${h.hanuka[3]}.${h.hanuka[2]})`);
+  return d.join(' | ')||'ללא';
+};
 
   const news=(m)=>(intl[m]||[]).join(' | ')||'';
 
