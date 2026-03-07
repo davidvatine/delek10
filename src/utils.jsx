@@ -11,3 +11,11 @@ const SB_HDR={"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authoriza
 export async function saveGantt(ganttData){const id=ganttData.year+"-"+ganttData.month+"-"+Math.random().toString(36).slice(2,7);try{await fetch(SUPABASE_URL+"/rest/v1/gantts",{method:"POST",headers:{...SB_HDR,"Prefer":"return=minimal"},body:JSON.stringify({id,year:ganttData.year,month:ganttData.month,ne:ganttData.extraCtx||"",posts:ganttData.posts,created_at:new Date().toISOString()})});}catch(e){console.error("save error",e);}return id;}
 export async function loadGantt(shareKey){try{const r=await fetch(SUPABASE_URL+"/rest/v1/gantts?id=eq."+shareKey+"&select=id,year,month,ne,posts,created_at",{headers:SB_HDR});const d=await r.json();if(!d[0])return null;const g=d[0];return{month:g.month,year:g.year,extraCtx:g.ne||"",posts:g.posts||[]};}catch{return null;}}
 export async function listGantts(){try{const r=await fetch(SUPABASE_URL+"/rest/v1/gantts?select=id,year,month,ne,posts,created_at&order=created_at.desc&limit=30",{headers:SB_HDR});const d=await r.json();if(!Array.isArray(d))return[];return d.map(g=>({id:g.id,created_at:g.created_at,data:{month:g.month,year:g.year,extraCtx:g.ne||"",posts:g.posts||[]}}));}catch{return[];}}
+export async function deleteGantt(id) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/gantts?id=eq.${id}`, {
+      method: "DELETE",
+      headers: SB_HDR
+    });
+  } catch(e) { console.error(e); }
+}
