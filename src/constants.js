@@ -6,7 +6,7 @@ export const HDR="linear-gradient(135deg,#1E1B4B 0%,#312E81 50%,#1565C0 100%)";
 export const MHE=["","ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 export const YEARS=[2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036];
 
-export export function getMCTX(year){
+export function getMCTX(year){
   // חגים יהודיים מאומתים 2025-2035
   const JH={
     2026:{purim:[3,3],pesach:[4,9,4,16],atzmaut:[4,22],zikaron:[4,21],lag:[5,5],shavuot:[5,28],rh:[9,11],yk:[9,20],sukkot:[9,25,10,1],hanuka:[12,4,12,11]},
