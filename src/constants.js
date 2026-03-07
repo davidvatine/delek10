@@ -61,20 +61,30 @@ const JH={
 
   const news=(m)=>(intl[m]||[]).join(' | ')||'';
 
-return{
-  1:{season:'חורף',weather:'קר וגשמי',holidays:holidays(1),special:'טו בשבט | יום החינוך הבינלאומי (24.1)',news:news(1),emoji:'❄️'},
-  2:{season:'חורף-אביב',weather:'מתחמם, גשמים',holidays:holidays(2),special:`יום המשפחה / יום האם (${({'2026':'17.2','2027':'7.2','2028':'27.2','2029':'15.2','2030':'3.2','2031':'23.2','2032':'11.2','2033':'31.1','2034':'20.2','2035':'9.2','2036':'28.2'})[String(year)]||'פברואר'}) | יום האהבה (14.2)`,news:news(2),emoji:'🎭'},
-  3:{season:'אביב',weather:'נעים, פריחה',holidays:holidays(3),special:year===2026?'יום האשה (8.3) | יום האביב (21.3) | יום המעשים הטובים (10.3)':'יום האשה (8.3) | יום האביב (21.3)',news:news(3),emoji:'🌸'},
-  4:{season:'אביב',weather:'חם ונעים',holidays:holidays(4),special:`יום הספורט הבינלאומי (6.4) | יום כדור הארץ (22.4) | יום הספר (23.4)${[2027,2028,2029,2030].includes(year)?` | יום המעשים הטובים (${{2027:'18.4',2028:'2.4',2029:'15.4',2030:'7.4'}[year]})`:''}`,news:news(4),emoji:'🌼'},
-  5:{season:'אביב-קיץ',weather:'חם',holidays:holidays(5),special:`יום האם הבינלאומי (${({'2026':'10.5','2027':'9.5','2028':'14.5','2029':'13.5','2030':'12.5','2031':'11.5','2032':'9.5','2033':'8.5','2034':'14.5','2035':'13.5','2036':'11.5'})[String(year)]||'מאי'})`,news:news(5),emoji:'🇮🇱'},
-  6:{season:'קיץ',weather:'חם מאוד',holidays:holidays(6),special:`יום הסביבה (5.6) | יום האב (${({'2026':'21.6','2027':'20.6','2028':'18.6','2029':'17.6','2030':'16.6','2031':'15.6','2032':'20.6','2033':'19.6','2034':'18.6','2035':'17.6','2036':'21.6'})[String(year)]||'יוני'}) | יום המוסיקה (21.6)`,news:news(6),emoji:'☀️'},
-  7:{season:'קיץ',weather:'שיא החום',holidays:holidays(7),special:'יום הידידות הבינלאומי (30.7)',news:news(7),emoji:'🏖️'},
-  8:{season:'קיץ',weather:'חם',holidays:holidays(8),special:'יום הצילום הבינלאומי (19.8)',news:news(8),emoji:'🌊'},
-  9:{season:'סתיו',weather:'מתקרר',holidays:holidays(9),special:'יום השלום הבינלאומי (21.9)',news:news(9),emoji:'🍂'},
-  10:{season:'סתיו',weather:'נעים',holidays:holidays(10),special:'יום בריאות הנפש העולמי (10.10) | יום המזון העולמי (16.10)',news:news(10),emoji:'🕍'},
-  11:{season:'סתיו-חורף',weather:'מתקרר, גשמים',holidays:holidays(11),special:'יום הנדיבות הבינלאומי (13.11) | יום ילדי העולם (20.11)',news:news(11),emoji:'🌧️'},
-  12:{season:'חורף',weather:'קר וגשמי',holidays:holidays(12),special:'יום ההתנדבות הבינלאומי (5.12) | יום זכויות האדם (10.12)',news:news(12),emoji:'🕎'},
-};
+return(function(){
+  const fam={2026:'17.2',2027:'7.2',2028:'27.2',2029:'15.2',2030:'3.2',2031:'23.2',2032:'11.2',2033:'31.1',2034:'20.2',2035:'9.2',2036:'28.2'};
+  const mom={2026:'10.5',2027:'9.5',2028:'14.5',2029:'13.5',2030:'12.5',2031:'11.5',2032:'9.5',2033:'8.5',2034:'14.5',2035:'13.5',2036:'11.5'};
+  const dad={2026:'21.6',2027:'20.6',2028:'18.6',2029:'17.6',2030:'16.6',2031:'15.6',2032:'20.6',2033:'19.6',2034:'18.6',2035:'17.6',2036:'21.6'};
+  const gdd={2027:'18.4',2028:'2.4',2029:'15.4',2030:'7.4'};
+  const famStr=fam[year]||'פברואר';
+  const momStr=mom[year]||'מאי';
+  const dadStr=dad[year]||'יוני';
+  const gddStr=gdd[year]?(' | יום המעשים הטובים ('+gdd[year]+')'):'';
+  return{
+    1:{season:'חורף',weather:'קר וגשמי',holidays:holidays(1),special:'טו בשבט | יום החינוך הבינלאומי (24.1)',news:news(1),emoji:'❄️'},
+    2:{season:'חורף-אביב',weather:'מתחמם, גשמים',holidays:holidays(2),special:'יום המשפחה / יום האם ('+famStr+') | יום האהבה (14.2)',news:news(2),emoji:'🎭'},
+    3:{season:'אביב',weather:'נעים, פריחה',holidays:holidays(3),special:'יום האשה (8.3) | יום האביב (21.3)'+(year===2026?' | יום המעשים הטובים (10.3)':''),news:news(3),emoji:'🌸'},
+    4:{season:'אביב',weather:'חם ונעים',holidays:holidays(4),special:'יום הספורט הבינלאומי (6.4) | יום כדור הארץ (22.4) | יום הספר (23.4)'+gddStr,news:news(4),emoji:'🌼'},
+    5:{season:'אביב-קיץ',weather:'חם',holidays:holidays(5),special:'יום האם הבינלאומי ('+momStr+')',news:news(5),emoji:'🇮🇱'},
+    6:{season:'קיץ',weather:'חם מאוד',holidays:holidays(6),special:'יום הסביבה (5.6) | יום האב ('+dadStr+') | יום המוסיקה (21.6)',news:news(6),emoji:'☀️'},
+    7:{season:'קיץ',weather:'שיא החום',holidays:holidays(7),special:'יום הידידות הבינלאומי (30.7)',news:news(7),emoji:'🏖️'},
+    8:{season:'קיץ',weather:'חם',holidays:holidays(8),special:'יום הצילום הבינלאומי (19.8)',news:news(8),emoji:'🌊'},
+    9:{season:'סתיו',weather:'מתקרר',holidays:holidays(9),special:'יום השלום הבינלאומי (21.9)',news:news(9),emoji:'🍂'},
+    10:{season:'סתיו',weather:'נעים',holidays:holidays(10),special:'יום בריאות הנפש העולמי (10.10) | יום המזון העולמי (16.10)',news:news(10),emoji:'🕍'},
+    11:{season:'סתיו-חורף',weather:'מתקרר, גשמים',holidays:holidays(11),special:'יום הנדיבות הבינלאומי (13.11) | יום ילדי העולם (20.11)',news:news(11),emoji:'🌧️'},
+    12:{season:'חורף',weather:'קר וגשמי',holidays:holidays(12),special:'יום ההתנדבות הבינלאומי (5.12) | יום זכויות האדם (10.12)',news:news(12),emoji:'🕎'},
+  };
+})();
 
 export const APP_LINK="https://ten.onelink.me/Cdb1/e3lfcju1";
 export const DISCLAIMER='*החיסכון בתשלום באמצעות כרטיס מועדון TenVIP או בתשלום באפליקציית Ten. החיסכון ממחיר בנזין בשירות מלא, כפי שנקבע על ידי מנהל הדלק. החיסכון הוא בתדלוק בשירות עצמי בלבד, אין כפל מבצעים והנחות.';
