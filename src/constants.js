@@ -83,8 +83,9 @@ return(function(){
     10:{season:'סתיו',weather:'נעים',holidays:holidays(10),special:'יום בריאות הנפש העולמי (10.10) | יום המזון העולמי (16.10)',news:news(10),emoji:'🕍'},
     11:{season:'סתיו-חורף',weather:'מתקרר, גשמים',holidays:holidays(11),special:'יום הנדיבות הבינלאומי (13.11) | יום ילדי העולם (20.11)',news:news(11),emoji:'🌧️'},
     12:{season:'חורף',weather:'קר וגשמי',holidays:holidays(12),special:'יום ההתנדבות הבינלאומי (5.12) | יום זכויות האדם (10.12)',news:news(12),emoji:'🕎'},
-  };
+ };
 })();
+}
 
 export const APP_LINK="https://ten.onelink.me/Cdb1/e3lfcju1";
 export const DISCLAIMER='*החיסכון בתשלום באמצעות כרטיס מועדון TenVIP או בתשלום באפליקציית Ten. החיסכון ממחיר בנזין בשירות מלא, כפי שנקבע על ידי מנהל הדלק. החיסכון הוא בתדלוק בשירות עצמי בלבד, אין כפל מבצעים והנחות.';
