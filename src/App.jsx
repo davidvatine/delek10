@@ -235,13 +235,14 @@ export default function App() {
   }
 
   // בדיקה אם נפתח דרך לינק שיתוף ?gantt=...
-  useEffect(() => {
+useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-const gKey = params.get("gantt");
-if (gKey) {
-  setSharedData("loading");
-  loadGantt(gKey).then(data => { if (data) setSharedData(data); });
-}, []);
+    const gKey = params.get("gantt");
+    if (gKey) {
+      setSharedData("loading");
+      loadGantt(gKey).then(data => { if (data) setSharedData(data); });
+    }
+  }, []);
 
   // האזנה לכפתור חזרה של הדפדפן
   useEffect(() => {
