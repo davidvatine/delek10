@@ -66,8 +66,16 @@ function SharedView({ ganttData }) {
             onUpdate={u => setLocalPosts(prev => prev.map(x => x.id === u.id ? u : x))} isSharedView />
         ))}
         {!sent
-          ? <button onClick={async () => {   await fetch("/api/send-feedback", {     method: "POST",     headers: { "Content-Type": "application/json" },     body: JSON.stringify({ ganttKey: new URLSearchParams(window.location.search).get("gantt"), posts: localPosts }),   });   setSent(true); }} style={{ width: "100%", padding: "16px", background: "#1E3A5F", color: WH, border: "none", borderRadius: 14, fontSize: 16, fontWeight: 900, cursor: "pointer", marginTop: 16, fontFamily: "system-ui" }}>📨 שלח פידבק לצוות</button>
-          : <div style={{ background: "#DCFCE7", border: "1px solid #86EFAC", borderRadius: 14, padding: 20, textAlign: "center", marginTop: 16, color: "#166534", fontWeight: 700, fontSize: 16 }}>✅ הפידבק נשלח! תודה</div>
+? <button onClick={async () => {
+  const r = await fetch("/api/send-feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ganttKey: new URLSearchParams(window.location.search).get("gantt"), posts: localPosts }),
+  });
+  const data = await r.json();
+  alert("סטטוס: " + r.status + "\n" + JSON.stringify(data));
+  setSent(true);
+}}          : <div style={{ background: "#DCFCE7", border: "1px solid #86EFAC", borderRadius: 14, padding: 20, textAlign: "center", marginTop: 16, color: "#166534", fontWeight: 700, fontSize: 16 }}>✅ הפידבק נשלח! תודה</div>
         }
         <div style={{ background: WH, borderRadius: 14, padding: 16, marginTop: 12, fontSize: 13, color: "#475569", lineHeight: 1.8 }}>
           <strong>איך זה עובד:</strong> עבור כל פוסט — לחץ ✅ מאושר או ✏️ יש הערה. בסוף לחץ שלח.
