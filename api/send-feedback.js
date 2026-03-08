@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": "Bearer re_PXs3L9Dd_GGUKf48TVEWQcJw5RfDQDoxn",
+    "Authorization": "Bearer re_fe3A7Y7B_2nx2oemNardUT7YzNndRAPSF",
     },
     body: JSON.stringify({
       from: "onboarding@resend.dev",
