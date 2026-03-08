@@ -45,7 +45,20 @@ function buildTemplate(m, y) {
 // ─────────────────────────────────────────────
 function SharedView({ ganttData }) {
   const { posts, month, year, extraCtx } = ganttData;
-  const [localPosts, setLocalPosts] = useState(posts);
+  const ganttKey = new URLSearchParams(window.location.search).get("gantt");
+const storageKey = ganttKey ? `client-feedback-${ganttKey}` : null;
+ const [localPosts, setLocalPosts] = useState(() => {
+  if (!storageKey) return posts;
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (!saved) return posts;
+    const savedData = JSON.parse(saved);
+    return posts.map(p => {
+      const s = savedData.find(x => x.id === p.id);
+      return s ? { ...p, approved: s.approved, clientNote: s.clientNote, promoText: s.promoText } : p;
+    });
+  } catch { return posts; }
+});
   const [sent, setSent] = useState(false);
   return (
     <div style={{ minHeight: "100vh", background: "#F1F5F9", direction: "rtl", fontFamily: "system-ui" }}>
@@ -62,7 +75,18 @@ function SharedView({ ganttData }) {
         <GanttTable posts={localPosts} month={month} year={year} extraCtx={extraCtx} />
         {localPosts.map(p => (
           <PostCard key={p.id} post={p} ctx={{ ...getMCTX(year)[month], extra: extraCtx }}
-            onUpdate={u => setLocalPosts(prev => prev.map(x => x.id === u.id ? u : x))} isSharedView />
+            onUpdate={u => {
+  const newPosts = localPosts.map(x => x.id === u.id ? u : x);
+  setLocalPosts(newPosts);
+  if (storageKey) {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(
+        newPosts.map(x => ({ id: p.id, approved: p.approved, clientNote: p.clientNote, promoText: p.promoText }))
+      ));
+    } catch {}
+  }
+}}
+            isSharedView />
         ))}
         {!sent
           ? <button
