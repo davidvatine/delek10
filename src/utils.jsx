@@ -4,7 +4,7 @@ import { PU, WH, BL, APP_LINK, DISCLAIMER, MHE, SUPABASE_URL, SUPABASE_KEY } fro
 // --- רכיבים תצוגתיים ---
 export const SLogo = ({ src, alt, style }) => {
     const [e, sE] = useState(false);
-    if (e || !src) return <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: PU, color: WH, fontWeight: "bold", fontSize: (style.width || 40) / 3, borderRadius: "8px" }}>{alt}</div>;
+    if (e || !src) return <div style={{ ...style, display: "flex", alignItems: "center", justifyCenter: "center", background: PU, color: WH, fontWeight: "bold", fontSize: (style.width || 40) / 3, borderRadius: "8px" }}>{alt}</div>;
     return <img src={src} alt={alt} style={style} onError={() => sE(true)} />;
 };
 
@@ -25,7 +25,7 @@ export function dayName(d, m, y) {
     return ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][new Date(y, m - 1, d).getDay()];
 }
 
-// --- לוגיקת AI ופרומפטים ---
+// --- לוגיקת AI ופרומפטים (הגרסה המושלמת) ---
 export async function callAI(prompt) {
     try {
         const r = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt }) });
@@ -39,71 +39,62 @@ export function buildPrompt(type, ctx, date, day, promoText = "") {
     const { season, weather, holidays, news } = ctx;
 
     const SYSTEM_RULES = `
-תפקיד: מנהל קריאייטיב בכיר של רשת תחנות הדלק Ten.
-קהל יעד: נהגים ישראלים.
-שפה: עברית חדה, שנונה, חברית. "סלנג תקני" (בלי המצאת מילים).
-
-כללי ברזל (חובה):
-1. עברית מושלמת 2000%: ללא שגיאות כתיב, פיסוק או הגהה.
-2. דקדוק: "Ten" היא חברה/תחנה ולכן היא נקבה. (Ten מבטיחה, Ten נותנת).
-3. אימוג'ים: חובה בין 1 ל-3 אימוג'ים בלבד. לא יותר, לא פחות.
-4. אסור להשתמש במקף ארוך (—). רק מקף רגיל (-).
-5. פתיחה: תמיד מסיטואציה יומיומית של נהג/ת (פקקים, הבוס, הילדים, רעב). בלי קלישאות.
-6. מילים אסורות: "בשורה", "מיוחד", "הזדמנות", "מוביל", "הכי טוב", "שלנו", "עבורכם".
-7. אורך: מקסימום 12 שורות קצרות.
+תפקיד: מנהל קריאייטיב וקופירייטר בכיר בישראל. המותג: תחנות דלק Ten.
+שפת כתיבה: עברית חדה, ישראלית, חברית ושנונה.
+Strcit Rules - חוקים שאין להפר:
+1. עברית מושלמת: וודא הטיות זכר/נקבה. אם הפוסט פונה לזכר, הוא נשאר זכר לכל אורכו. אם לנקבה, נשאר נקבה.
+2. איסור מוחלט על "תרגום מכונה": אל תמציא פעלים כמו "מזגינים" או "מאותך".
+3. שם המותג: Ten היא חברה (נקבה). Ten נותנת, Ten מבטיחה.
+4. אימוג'ים: 1 עד 3 בלבד.
+5. סימני פיסוק: אין מקף ארוך (—), רק מקף רגיל (-).
+6. אל תהיה גנרי: אל תכתוב "הקיץ הגיע" או "מגיע לכם הכי טוב". דבר על סיטואציות אמיתיות: פקקים, הבוס, חלב שנגמר, הילד ששכח בריסטול.
 `;
 
-    const MONDAY_TEMPLATE = `
-סוג: שני חסכוני (40 אג' הנחה).
-הקשר: יום שני בישראל הוא אמצע השבוע. כולם לוקחים ממך אנרגיה - Ten היחידה שנותנת.
-דרישה: אל תכתוב "יום שני קשה". תכתוב על המייל מהבוס או הילד ששכח בריסטול.
-סיים ב: ${APP_LINK}
-${DISCLAIMER}`;
+    const FEW_SHOT_EXAMPLES = `
+השתמש בסגנון של דוגמאות העבר האלו:
+- "ביום שני כולם רוצים מכם משהו. ב-Ten זה הפוך. הבוס רוצה דוחות, המיילים רוצים תשובות... העולם לוקח מכם אנרגיה, חוץ מב-Ten." 
+- "בדרך לנטיעות עוצרים ב... Ten כמובן! לפני שאתם נוטעים שורשים בפקקים, עוצרים ב-Ten." 
+- "נכון כבר נמאס לכם מדייטים גרועים... עם מעסיקים? בואו למצוא זוגיות ארוכת טווח ב-Ten." 
+`;
 
-    const HOLIDAY_TEMPLATE = `
-סוג: חג/אירוע (${holidays || "כללי"}).
-הקשר: טיולים משפחתיים, פקקים בחול המועד, עצירה לקפה בדרך לצפון/דרום.
-דרישה: חבר את החג לנסיעה. אל תברך "חג שמח" גנרי.
-סיים ב: ${DISCLAIMER}`;
+    const TEMPLATES = {
+        "שני חסכוני": `נושא: שני חסכוני (40 אגורות הנחה). 
+קונספט: יום שני הוא היום שבו כולם שואבים ממך כוח (מיילים, פגישות, סידורים). Ten היא היחידה שמחזירה לך אנרגיה וחיסכון.
+סיים עם: ${APP_LINK} 
+${DISCLAIMER}`,
 
-    const FUN_TEMPLATE = `
-סוג: מצחיק / POV / מעורבות.
-הקשר: "האמת" של הנהגים. (למשל: נכנסים רק לשלם ויוצאים עם חצי חנות נוחות).
-דרישה: קצר, קולע, מעודד תגובות או תיוגים. סיים עם משחק מילים על Ten.
-סיים ב: ${APP_LINK}`;
+        "חג / אירוע": `נושא: ${holidays || "חג/אירוע"}. 
+קונספט: חבר את החג לנסיעה משפחתית, לפקקים או לעצירה להתרעננות. אל תהיה בנאלי.
+סיים עם: ${DISCLAIMER}`,
 
-    const JOBS_TEMPLATE = `
-סוג: דרושים.
-הקשר: מקום שכיף לקום אליו, צוות צעיר, עבודה מועדפת.
-דרישה: השתמש במושגים "משפחה שכן בוחרים" או "אנרגיה טובה". בלי קלישאות זוגיות.
-סיים ב: שלחו לנו וואטסאפ (מגיל 18 ומעלה בלבד) למספר 054-3207261.
-או הכנסו לאתר: https://www.10ten.co.il/%D7%A7%D7%A8%D7%99%D7%99%D7%A8%D7%94`;
+        "מצחיק / אפליקציה": `נושא: מצחיק / מעורבות. 
+קונספט: האמת של הנהגים הישראלים (הילדים מאחורה, נכנסים 'רק לקפה' ויוצאים עם שקיות). 
+סיים עם משחק מילים על Ten (למשל: "הכל 10 מתוך 10").
+סיים עם: ${APP_LINK}`,
 
-    const PROMO_TEMPLATE = `
-סוג: מבצע על ${promoText}.
-הקשר: סיטואציה שבה הנהג צריך את המוצר (מצבר מת, גשם ראשון ומגבים חורקים).
-דרישה: מחיר רגיל מול מחיר אפליקציה. הצג את הפתרון של Ten.
-סיים ב: ${APP_LINK}
-${DISCLAIMER}`;
+        "דרושים": `נושא: דרושים. 
+קונספט: "משפחה שבוחרים", אנרגיות טובות, קפה ומזגן. בלי קלישאות זולות.
+סיים עם: שלחו לנו וואטסאפ (מגיל 18 ומעלה בלבד) למספר 054-3207261 
+או הכנסו לאתר: https://www.10ten.co.il/%D7%A7%D7%A8%D7%99%D7%99%D7%A8%D7%94`,
 
-    let template = "";
-    if (type === "שני חסכוני") template = MONDAY_TEMPLATE;
-    else if (type === "חג / אירוע") template = HOLIDAY_TEMPLATE;
-    else if (type === "מצחיק / אפליקציה") template = FUN_TEMPLATE;
-    else if (type === "דרושים") template = JOBS_TEMPLATE;
-    else if (type === "פוסט מבצע") template = PROMO_TEMPLATE;
-    else template = "כתוב פוסט שנון על חוויית הנסיעה ועצירה ב-Ten. סיים ב: " + DISCLAIMER;
+        "פוסט מבצע": `נושא: מבצע על ${promoText}. 
+קונספט: הצג סיטואציה (מגבים חורקים בגשם, מצבר מת). תן פתרון ומחיר אפליקציה מול רגיל.
+סיים עם: ${APP_LINK}
+${DISCLAIMER}`
+    };
 
-    return SYSTEM_RULES + `
-הקשר ליצירה:
+    const currentTemplate = TEMPLATES[type] || `כתוב פוסט שנון על חוויית נסיעה ועצירה ב-Ten. סיים ב: ${DISCLAIMER}`;
+
+    return SYSTEM_RULES + FEW_SHOT_EXAMPLES + `
+נתוני הפוסט ליצירה:
 תאריך: ${date} (יום ${day})
 עונה: ${season}, ${weather}
 אירוע/חדשות: ${holidays || "אין"} ${news || ""}
 
-` + template;
+` + currentTemplate;
 }
 
-// --- ניהול קבצים ושמירה ---
+// --- ניהול נתונים (Supabase) ---
 const SB_HDR = { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY };
 
 export async function uploadImage(file) {
@@ -122,8 +113,7 @@ export async function saveGantt(ganttData) {
     const id = ganttData.year + "-" + ganttData.month + "-" + Math.random().toString(36).slice(2, 7);
     try {
         await fetch(SUPABASE_URL + "/rest/v1/gantts", {
-            method: "POST",
-            headers: { ...SB_HDR, "Prefer": "return=minimal" },
+            method: "POST", headers: { ...SB_HDR, "Prefer": "return=minimal" },
             body: JSON.stringify({ id, year: ganttData.year, month: ganttData.month, ne: ganttData.extraCtx || "", posts: ganttData.posts, created_at: new Date().toISOString() })
         });
     } catch (e) { console.error("save error", e); }
