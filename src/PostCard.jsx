@@ -37,20 +37,20 @@ export default function PostCard({post,ctx,onUpdate,isSharedView}){
       </div>
 
       {/* body */}
-      <div style={{display:"flex",flexWrap:"wrap"}}>
+     <div style={{display:"flex",flexWrap:"wrap"}}>
         {/* תמונה */}
        <div style={{width:"40%",minWidth:220,maxWidth:420,padding:14,background:"#F9FAFB",display:"flex",flexDirection:"column",alignItems:"center",gap:8,borderLeft:`1px solid ${BR}`,flexShrink:0}}>
           <div style={{fontSize:11,color:"#64748B",fontWeight:700}}>🖼️ תמונה לפוסט</div>
           {img?(
             <img src={img} style={{width:"100%",maxWidth:380,height:"auto",objectFit:"contain",borderRadius:8,background:"#F8FAFC",cursor:isSharedView?"default":"pointer"}} onClick={()=>!isSharedView&&fileRef.current?.click()}/>
-          ):(
+          ):(!isSharedView?(
               <div onClick={()=>fileRef.current?.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)handleImg(f);}}
               style={{width:400,height:320,border:"2px dashed #CBD5E1",borderRadius:10,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",color:"#94A3B8",fontSize:11,textAlign:"center",cursor:"pointer"}}>
               <span style={{fontSize:22}}>📤</span>
               <span>העלה תמונה מעוצבת</span>
               <span style={{fontSize:10,marginTop:2}}>לחץ או גרור לכאן</span>
            </div>
-          ))}
+          ):null)}
           <input ref={fileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{if(e.target.files[0])handleImg(e.target.files[0]);}}/>
         </div>
 
