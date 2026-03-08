@@ -85,9 +85,7 @@ function SharedView({ ganttData }) {
             </button>
           : <div style={{ background: "#DCFCE7", border: "1px solid #86EFAC", borderRadius: 14, padding: 20, textAlign: "center", marginTop: 16, color: "#166534", fontWeight: 700, fontSize: 16 }}>✅ הפידבק נשלח! תודה</div>
         }
-        <div style={{ background: WH, borderRadius: 14, padding: 16, marginTop: 12, fontSize: 13, color: "#475569", lineHeight: 1.8 }}>
-          <strong>איך זה עובד:</strong> עבור כל פוסט - לחץ ✅ מאושר או ✏️ יש הערה. בסוף לחץ שלח.
-        </div>
+      
       </main>
     </div>
   );
