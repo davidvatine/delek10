@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         from: "support@davidvatine.co.il",
-        to: "david@davidvatine.co.il",
+        to: "lital@davidvatine.co.il",
         subject: `אישור גאנט | ${label}`,
         html: emailHtml,
       }),
