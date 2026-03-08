@@ -70,7 +70,13 @@ function SharedView({ ganttData }) {
                 const r = await fetch("/api/send-feedback", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ ganttKey: new URLSearchParams(window.location.search).get("gantt"), posts: localPosts }),
+                  body: JSON.stringify({
+  ganttKey: new URLSearchParams(window.location.search).get("gantt"),
+  posts: localPosts,
+  month: month,
+  year: year,
+  clientName: "דלק Ten",
+}),
                 });
                 const data = await r.json();
                 alert("סטטוס: " + r.status + "\n" + JSON.stringify(data));
