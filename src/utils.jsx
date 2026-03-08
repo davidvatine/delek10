@@ -4,19 +4,18 @@ import { PU, WH, BL, APP_LINK, DISCLAIMER, MHE, SUPABASE_URL, SUPABASE_KEY } fro
 // --- רכיבים תצוגתיים ---
 export const SLogo = ({ src, alt, style }) => {
     const [e, sE] = useState(false);
-    if (e || !src) return <div style={{ ...style, display: "flex", alignItems: "center", justifyCenter: "center", background: PU, color: WH, fontWeight: "bold", fontSize: (style.width || 40) / 3, borderRadius: "8px" }}>{alt}</div>;
+    if (e || !src) return <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: PU, color: WH, fontWeight: "bold", fontSize: (style.width || 40) / 3, borderRadius: "8px" }}>{alt}</div>;
     return <img src={src} alt={alt} style={style} onError={() => sE(true)} />;
 };
 
-export const BADGE = {
-    "שני חסכוני": ["#DBEAFE", "#1565C0"],
-    "חג / אירוע": ["#DCFCE7", "#166534"],
-    "מצחיק / אפליקציה": ["#FEF3C7", "#92400E"],
-    "דרושים": ["#FCE7F3", "#9D174D"],
-    "פוסט מבצע": ["#FFE4E6", "#9F1239"]
-};
-
 export const Badge = ({ t }) => {
+    const BADGE = {
+        "שני חסכוני": ["#DBEAFE", "#1565C0"],
+        "חג / אירוע": ["#DCFCE7", "#166534"],
+        "מצחיק / אפליקציה": ["#FEF3C7", "#92400E"],
+        "דרושים": ["#FCE7F3", "#9D174D"],
+        "פוסט מבצע": ["#FFE4E6", "#9F1239"]
+    };
     const [bg, c] = BADGE[t] || ["#F3F4F6", "#374151"];
     return <span style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 800, background: bg, color: c, whiteSpace: "nowrap" }}>{t}</span>;
 };
@@ -25,85 +24,78 @@ export function dayName(d, m, y) {
     return ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][new Date(y, m - 1, d).getDay()];
 }
 
-// --- לוגיקת AI ופרומפטים (הגרסה המושלמת) ---
+// --- לוגיקת AI עם מנגנון יצירתיות ---
 export async function callAI(prompt) {
     try {
         const r = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt }) });
         if (!r.ok) throw new Error();
         const d = await r.json();
         return (d.text || "").trim();
-    } catch { return "שגיאה ביצירת התוכן. נסה שוב."; }
+    } catch { return "שגיאה ביצירת התוכן."; }
 }
 
 export function buildPrompt(type, ctx, date, day, promoText = "") {
     const { season, weather, holidays, news } = ctx;
 
-    const SYSTEM_RULES = `
-תפקיד: מנהל קריאייטיב וקופירייטר בכיר בישראל. המותג: תחנות דלק Ten.
-שפת כתיבה: עברית חדה, ישראלית, חברית ושנונה.
-Strcit Rules - חוקים שאין להפר:
-1. עברית מושלמת: וודא הטיות זכר/נקבה. אם הפוסט פונה לזכר, הוא נשאר זכר לכל אורכו. אם לנקבה, נשאר נקבה.
-2. איסור מוחלט על "תרגום מכונה": אל תמציא פעלים כמו "מזגינים" או "מאותך".
-3. שם המותג: Ten היא חברה (נקבה). Ten נותנת, Ten מבטיחה.
-4. אימוג'ים: 1 עד 3 בלבד.
-5. סימני פיסוק: אין מקף ארוך (—), רק מקף רגיל (-).
-6. אל תהיה גנרי: אל תכתוב "הקיץ הגיע" או "מגיע לכם הכי טוב". דבר על סיטואציות אמיתיות: פקקים, הבוס, חלב שנגמר, הילד ששכח בריסטול.
+    const CREATIVE_STRATEGY = `
+אסטרטגיית תוכן:
+אנחנו מחפשים את ה"אמת" הקטנה והמעצבנת של הנהג הישראלי ומחברים אותה ל-Ten[cite: 2, 4, 6].
+הטון: שנון, קצת חוצפן, אבל תמיד חיובי[cite: 2, 8].
+
+חוקי עברית (קדושים):
+- "Ten" היא נקבה (תחנה/רשת). היא תמיד "נותנת" או "מפנקת"[cite: 2, 6].
+- מספרים: שלוש שקיות (נקבה), שלושה שקלים (זכר).
+- בלי תרגום מכונה: "הסוללה נגמרה" (לא הטלפון), "הילד צועק" (לא מסרב להתפשט), "שלוש שקיות" (לא שלושה)[cite: 2, 10].
+- מקף רגיל (-) בלבד. 1-3 אימוג'ים מקסימום.
 `;
 
-    const FEW_SHOT_EXAMPLES = `
-השתמש בסגנון של דוגמאות העבר האלו:
-- "ביום שני כולם רוצים מכם משהו. ב-Ten זה הפוך. הבוס רוצה דוחות, המיילים רוצים תשובות... העולם לוקח מכם אנרגיה, חוץ מב-Ten." 
-- "בדרך לנטיעות עוצרים ב... Ten כמובן! לפני שאתם נוטעים שורשים בפקקים, עוצרים ב-Ten." 
-- "נכון כבר נמאס לכם מדייטים גרועים... עם מעסיקים? בואו למצוא זוגיות ארוכת טווח ב-Ten." 
-`;
+    const TYPE_PROMPTS = {
+        "שני חסכוני": `
+המשימה: כתוב פוסט ל"שני חסכוני" (40 אג' הנחה).
+הקריאייטיב: בחר סיטואציה אחת שונה בכל פעם:
+1. פקק שבו כולם צופרים לחינם.
+2. הבוס ששולח משימה "דחופה" לאתמול.
+3. הילד שצריך להסיע לחוג בדיוק כשיש שיחה חשובה.
+חבר את זה לזה ש-Ten היא הנקודה השפויה והמשתלמת ביום הזה[cite: 2, 8].`,
 
-    const TEMPLATES = {
-        "שני חסכוני": `נושא: שני חסכוני (40 אגורות הנחה). 
-קונספט: יום שני הוא היום שבו כולם שואבים ממך כוח (מיילים, פגישות, סידורים). Ten היא היחידה שמחזירה לך אנרגיה וחיסכון.
-סיים עם: ${APP_LINK} 
-${DISCLAIMER}`,
+        "חג / אירוע": `
+המשימה: פוסט ל${holidays || season}.
+הקריאייטיב: אל תכתוב "חג שמח". כתוב על הצידנית שנוזלת בבגאז', על זה ששכחתם את המתנה אצל הדודה, או על התור בדרך לחרמון/אילת. 
+Ten היא העצירה שתציל את הטיול[cite: 2, 8].`,
 
-        "חג / אירוע": `נושא: ${holidays || "חג/אירוע"}. 
-קונספט: חבר את החג לנסיעה משפחתית, לפקקים או לעצירה להתרעננות. אל תהיה בנאלי.
-סיים עם: ${DISCLAIMER}`,
+        "מצחיק / אפליקציה": `
+המשימה: פוסט POV או מעורבות.
+הקריאייטיב: תתמקד בסטטיסטיקה מצחיקה. למשל: "90% מהאנשים שנכנסים ל-Ten לקנות רק מים, יוצאים עם קפה ומאפה כי הריח גמר אותם"[cite: 4, 10].`,
 
-        "מצחיק / אפליקציה": `נושא: מצחיק / מעורבות. 
-קונספט: האמת של הנהגים הישראלים (הילדים מאחורה, נכנסים 'רק לקפה' ויוצאים עם שקיות). 
-סיים עם משחק מילים על Ten (למשל: "הכל 10 מתוך 10").
-סיים עם: ${APP_LINK}`,
+        "דרושים": `
+המשימה: גיוס עובדים.
+הקריאייטיב: תמכור את ה"וויב". עבודה עם אנשים, מזגן בשירות עצמי, והטבות דלק[cite: 2, 6, 8]. בלי קלישאות זוגיות.`,
 
-        "דרושים": `נושא: דרושים. 
-קונספט: "משפחה שבוחרים", אנרגיות טובות, קפה ומזגן. בלי קלישאות זולות.
-סיים עם: שלחו לנו וואטסאפ (מגיל 18 ומעלה בלבד) למספר 054-3207261 
-או הכנסו לאתר: https://www.10ten.co.il/%D7%A7%D7%A8%D7%99%D7%99%D7%A8%D7%94`,
-
-        "פוסט מבצע": `נושא: מבצע על ${promoText}. 
-קונספט: הצג סיטואציה (מגבים חורקים בגשם, מצבר מת). תן פתרון ומחיר אפליקציה מול רגיל.
-סיים עם: ${APP_LINK}
-${DISCLAIMER}`
+        "פוסט מבצע": `
+המשימה: מבצע על ${promoText}.
+הקריאייטיב: תאר רגע של "תסכול" (המגב משאיר סימן על השמשה, המצבר מוציא קול של גסיסה). Ten היא ה"עזרה הראשונה" לרכב[cite: 2, 4, 6].`
     };
 
-    const currentTemplate = TEMPLATES[type] || `כתוב פוסט שנון על חוויית נסיעה ועצירה ב-Ten. סיים ב: ${DISCLAIMER}`;
+    const currentPrompt = TYPE_PROMPTS[type] || "כתוב פוסט יצירתי על Ten.";
 
-    return SYSTEM_RULES + FEW_SHOT_EXAMPLES + `
-נתוני הפוסט ליצירה:
-תאריך: ${date} (יום ${day})
-עונה: ${season}, ${weather}
-אירוע/חדשות: ${holidays || "אין"} ${news || ""}
+    return CREATIVE_STRATEGY + `
+נתונים ליצירה:
+תאריך: ${date} (${day})
+עונה/חג: ${season}, ${holidays || "אין"}
+חדשות/הקשר: ${news || "אין"}
 
-` + currentTemplate;
+כתוב פוסט מקורי, שונה מהקודמים, בעברית מושלמת (זכור: שלוש שקיות, Ten נותנת):
+`;
 }
 
-// --- ניהול נתונים (Supabase) ---
+// --- פונקציות Supabase נשארות כפי שהיו ---
 const SB_HDR = { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY };
 
 export async function uploadImage(file) {
     const ext = file.name.split('.').pop();
     const path = `images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const res = await fetch(`${SUPABASE_URL}/storage/v1/object/gantt-images/${path}`, {
-        method: "POST",
-        headers: { ...SB_HDR, "Content-Type": file.type },
-        body: file
+        method: "POST", headers: { ...SB_HDR, "Content-Type": file.type }, body: file
     });
     if (!res.ok) return null;
     return `${SUPABASE_URL}/storage/v1/object/public/gantt-images/${path}`;
