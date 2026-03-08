@@ -59,7 +59,7 @@ export default function PostCard({post,ctx,onUpdate,isSharedView}){
           {isPromo&&!post.copy&&(
             <div style={{marginBottom:10}}>
               <div style={{fontSize:11,color:"#64748B",fontWeight:700,marginBottom:5}}>📦 פרטי המבצע</div>
-              <input value={promoText} onChange={e=>setPromoText(e.target.value)} placeholder="תאר את המבצע: מוצר, הנחה, תנאים..."
+              <input value={promoText} onChange={e=>setPromoText(e.target.value)} onBlur={e=>onUpdate({...post, promoText: e.target.value})} placeholder="תאר את המבצע: מוצר, הנחה, תנאים..."
                 style={{width:"100%",padding:"8px 10px",borderRadius:8,border:`1px solid ${BR}`,fontSize:12,fontFamily:"system-ui"}}/>
             </div>
           )}
