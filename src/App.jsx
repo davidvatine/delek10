@@ -82,7 +82,7 @@ function SharedView({ ganttData }) {
           : <div style={{ background: "#DCFCE7", border: "1px solid #86EFAC", borderRadius: 14, padding: 20, textAlign: "center", marginTop: 16, color: "#166534", fontWeight: 700, fontSize: 16 }}>✅ הפידבק נשלח! תודה</div>
         }
         <div style={{ background: WH, borderRadius: 14, padding: 16, marginTop: 12, fontSize: 13, color: "#475569", lineHeight: 1.8 }}>
-          <strong>איך זה עובד:</strong> עבור כל פוסט — לחץ ✅ מאושר או ✏️ יש הערה. בסוף לחץ שלח.
+          <strong>איך זה עובד:</strong> עבור כל פוסט - לחץ ✅ מאושר או ✏️ יש הערה. בסוף לחץ שלח.
         </div>
       </main>
     </div>
@@ -129,7 +129,7 @@ function GanttTable({ posts, month, year, extraCtx, openRow, setOpenRow }) {
 }
 
 // ─────────────────────────────────────────────
-// דף גאנטים שמורים — /saved
+// דף גאנטים שמורים - /saved
 // ─────────────────────────────────────────────
 function SavedPage({ onBack, onLoad }) {
   const [list, setList] = useState([]);
@@ -240,7 +240,7 @@ export default function App() {
   const [openRow, setOpenRow] = useState(null);
   const [sharedData, setSharedData] = useState(null);
 
-  // ניווט — מעדכן גם URL וגם state
+  // ניווט - מעדכן גם URL וגם state
   function nav(path, v) {
     window.history.pushState({}, "", path);
     setView(v);
@@ -317,7 +317,7 @@ if (sharedData && sharedData !== "loading") return <SharedView ganttData={shared
     navigator.clipboard.writeText(`גאנט תוכן דלק Ten | ${MHE[month]} ${year}\n${"=".repeat(50)}\n\n${lines.join("\n")}`).then(() => alert("הועתק ללוח!"));
   }
 
-  // כותרת — משמשת בדפים setup ו-gantt
+  // כותרת - משמשת בדפים setup ו-gantt
   const Header = ({ subtitle, showBtns }) => (
     <header style={{ background: "linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)", padding: "12px 24px", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -426,10 +426,10 @@ if (sharedData && sharedData !== "loading") return <SharedView ganttData={shared
     </div>
   );
 
-  // דף גאנט — תצוגת הפוסטים
+  // דף גאנט - תצוגת הפוסטים
   return (
     <div style={{ minHeight: "100vh", background: "#F1F5F9", direction: "rtl", fontFamily: "system-ui" }}>
-      <Header subtitle={`גאנט ${MHE[month]} ${year} — דלק Ten`} showBtns />
+      <Header subtitle={`גאנט ${MHE[month]} ${year} - דלק Ten`} showBtns />
       {generating && (
         <div style={{ background: "#EFF6FF", borderBottom: "2px solid #BFDBFE", padding: "9px 24px", display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ fontSize: 13, color: BL, fontWeight: 700 }}>⚙️ מייצר {genProgress}/5 פוסטים אוטומטית...</span>
