@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
   // --- 2. Build the email HTML ---
   const emailHtml = `<div dir="rtl">
-    <h2>📋 אישור גאנט!</h2>
+    <h2>אישור גאנט</h2>
     <p style="font-size:18px"><strong>לקוח:</strong> ${clientName || "לא צוין"}</p>
     <p style="font-size:18px"><strong>גאנט:</strong> ${monthName} ${year || ""}</p>
     <hr/>
@@ -44,6 +44,7 @@ export default async function handler(req, res) {
       <div style="margin-bottom:16px;padding:12px;border:1px solid #e2e8f0;border-radius:8px">
         <strong>#${p.id} | ${p.date || "לפי מבצע"} | ${p.type}</strong><br/>
         סטטוס: ${p.approved ? "✅ מאושר" : "⏳ ממתין"}<br/>
+        ${p.promoText ? `פרטי מבצע: ${p.promoText}<br/>` : ""}
         ${p.clientNote ? `<span style="color:#7C3AED">הערה: ${p.clientNote}</span>` : ""}
       </div>
     `
@@ -62,7 +63,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         from: "support@davidvatine.co.il",
         to: "david@davidvatine.co.il",
-        subject: `📋 פידבק חדש | ${label}`,
+        subject: `אישור גאנט | ${label}`,
         html: emailHtml,
       }),
     });
