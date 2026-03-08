@@ -8,199 +8,229 @@ export const YEARS=[2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036];
 
 export function getMCTX(year){
   // ═══════════════════════════════════════════════════════════════════
-  // כל התאריכים מאומתים ישירות מ-Hebcal.com (Israel mode, i=on)
-  // sunset = יום החג מתחיל בערב, לכן היום שמופיע הוא יום+1 מה-sunset
-  // לדוגמה: "Fri 25 Sep sunset" → חג מתחיל שבת 26 Sep
+  // תאריכים לפי הרשימה הרשמית (גוגל / מקורות ממשלתיים)
+  // פורמט: [חודש, יום_ראשון_של_חג] — היום שבו החג מתחיל (בערב)
   // ═══════════════════════════════════════════════════════════════════
   const JH={
     2026:{
-      tubishvat:[2,2],        // Sun 1 Feb sunset → 2 Feb
-      purim:[3,3],            // Mon 2 Mar sunset → 3 Mar
-      pesach:[4,2],           // Wed 1 Apr sunset → 2 Apr
-      pesachend:[4,8],        // Wed 8 Apr nightfall
-      yomhashoah:[4,13],      // Hebcal modern table: Mon 13 Apr
-      yomzikaron:[4,20],      // Mon 20 Apr
-      atzmaut:[4,21],         // Tue 21 Apr
-      lag:[5,5],              // Mon 4 May sunset → 5 May
-      shavuot:[5,22],         // Thu 21 May sunset → 22 May
-      tzomtamuz:[7,2],        // Thu 2 Jul (dawn fast)
-      tishabeav:[7,23],       // Wed 22 Jul sunset → 23 Jul
-      rh:[9,12], rhend:[9,13],// Fri 11 Sep sunset → 12-13 Sep
-      yk:[9,21],              // Sun 20 Sep sunset → 21 Sep
-      sukkot:[9,26], sukkotend:[10,2], // Fri 25 Sep sunset → 26 Sep ... 2 Oct
-      simchatorah:[10,3],     // Fri 2 Oct sunset → 3 Oct
-      hanuka:[12,5], hanukaend:[12,12],// Fri 4 Dec sunset → 5-12 Dec
+      tubishvat:[2,1],          // 1 פברואר בערב עד 2 פברואר
+      purim:[3,2],              // 2 מרץ בערב עד 3 מרץ
+      pesach:[4,1],             // 1 אפריל בערב עד 9 אפריל
+      pesachend:[4,9],
+      yomhashoah:[4,13],        // 13 אפריל בערב עד 14 אפריל
+      yomzikaron:[4,20],        // 20 אפריל בערב עד 21 אפריל
+      atzmaut:[4,21],           // 21 אפריל בערב עד 22 אפריל
+      lag:[5,4],                // 4 מאי בערב עד 5 מאי
+      shavuot:[5,21],           // 21 מאי בערב עד 22 מאי
+      tishabeav:[7,22],         // 22 יולי בערב עד 23 יולי
+      rh:[9,11],                // 11 ספטמבר בערב עד 13 ספטמבר
+      rhend:[9,13],
+      yk:[9,20],                // 20 ספטמבר בערב עד 21 ספטמבר
+      sukkot:[9,25],            // 25 ספטמבר בערב עד 3 אוקטובר
+      sukkotend:[10,3],
+      simchatorah:[10,3],       // נכלל בסוכות — שמחת תורה 3 אוקטובר
+      hanuka:[12,4],            // 4 דצמבר בערב עד 12 דצמבר
+      hanukaend:[12,12],
     },
     2027:{
-      tubishvat:[1,23],       // Fri 22 Jan sunset → 23 Jan
-      purim:[3,23],           // Mon 22 Mar sunset → 23 Mar
-      pesach:[4,22], pesachend:[4,28], // Wed 21 Apr sunset → 22-28 Apr
-      yomhashoah:[5,3],       // Mon 3 May
-      yomzikaron:[5,10],      // Mon 10 May
-      atzmaut:[5,11],         // Tue 11 May
-      lag:[5,25],             // Mon 24 May sunset → 25 May
-      shavuot:[6,11],         // Thu 10 Jun sunset → 11 Jun
-      tzomtamuz:[7,22],       // Thu 22 Jul (dawn fast)
-      tishabeav:[8,12],       // Wed 11 Aug sunset → 12 Aug
-      rh:[10,2], rhend:[10,3],// Fri 1 Oct sunset → 2-3 Oct
-      yk:[10,11],             // Sun 10 Oct sunset → 11 Oct
-      sukkot:[10,16], sukkotend:[10,22], // Fri 15 Oct sunset → 16-22 Oct
-      simchatorah:[10,23],    // Fri 22 Oct sunset → 23 Oct
-      hanuka:[12,24], hanukaend:[12,31],// Thu 23 Dec sunset → 24-31 Dec
+      tubishvat:[1,22],         // 22 ינואר בערב עד 23 ינואר
+      purim:[3,22],             // 22 מרץ בערב עד 23 מרץ
+      pesach:[4,21],            // 21 אפריל בערב עד 29 אפריל
+      pesachend:[4,29],
+      yomhashoah:[5,3],         // 3 מאי בערב עד 4 מאי
+      yomzikaron:[5,10],        // 10 מאי בערב עד 11 מאי
+      atzmaut:[5,11],           // 11 מאי בערב עד 12 מאי
+      lag:[5,24],               // 24 מאי בערב עד 25 מאי
+      shavuot:[6,10],           // 10 יוני בערב עד 11 יוני
+      tishabeav:[8,11],         // 11 אוגוסט בערב עד 12 אוגוסט
+      rh:[10,1],                // 1 אוקטובר בערב עד 3 אוקטובר
+      rhend:[10,3],
+      yk:[10,10],               // 10 אוקטובר בערב עד 11 אוקטובר
+      sukkot:[10,15],           // 15 אוקטובר בערב עד 23 אוקטובר
+      sukkotend:[10,23],
+      simchatorah:[10,23],
+      hanuka:[12,24],           // 24 דצמבר בערב עד 1 ינואר 2028
+      hanukaend:[12,31],        // נגמר 31 דצמבר (יום 8 = 1 ינואר)
     },
     2028:{
-      tubishvat:[2,12],       // Fri 11 Feb sunset → 12 Feb
-      purim:[3,12],           // Sat 11 Mar sunset → 12 Mar
-      pesach:[4,11], pesachend:[4,17], // Mon 10 Apr sunset → 11-17 Apr
-      yomhashoah:[4,23],      // Sun 23 Apr
-      yomzikaron:[4,30],      // Sun 30 Apr
-      atzmaut:[5,1],          // Mon 1 May
-      lag:[5,14],             // Sat 13 May sunset → 14 May
-      shavuot:[5,31],         // Tue 30 May sunset → 31 May
-      tzomtamuz:[7,11],       // Tue 11 Jul (dawn fast)
-      tishabeav:[8,1],        // Mon 31 Jul sunset → 1 Aug
-      rh:[9,21], rhend:[9,22],// Wed 20 Sep sunset → 21-22 Sep
-      yk:[9,30],              // Fri 29 Sep sunset → 30 Sep
-      sukkot:[10,5], sukkotend:[10,11], // Wed 4 Oct sunset → 5-11 Oct
-      simchatorah:[10,12],    // Wed 11 Oct sunset → 12 Oct
-      hanuka:[12,3], hanukaend:[12,11],// Sun 2 Dec sunset → 3-11 Dec (25 Kislev 5789 = 2 Dec)
+      tubishvat:[2,11],         // 11 פברואר בערב עד 12 פברואר
+      purim:[3,11],             // 11 מרץ בערב עד 12 מרץ
+      pesach:[4,10],            // 10 אפריל בערב עד 18 אפריל
+      pesachend:[4,18],
+      yomhashoah:[4,23],        // 23 אפריל בערב עד 24 אפריל
+      yomzikaron:[4,30],        // 30 אפריל בערב עד 1 מאי
+      atzmaut:[5,1],            // 1 מאי בערב עד 2 מאי
+      lag:[5,13],               // 13 מאי בערב עד 14 מאי
+      shavuot:[5,30],           // 30 מאי בערב עד 31 מאי
+      tishabeav:[7,31],         // 31 יולי בערב עד 1 אוגוסט
+      rh:[9,20],                // 20 ספטמבר בערב עד 22 ספטמבר
+      rhend:[9,22],
+      yk:[9,29],                // 29 ספטמבר בערב עד 30 ספטמבר
+      sukkot:[10,4],            // 4 אוקטובר בערב עד 12 אוקטובר
+      sukkotend:[10,12],
+      simchatorah:[10,12],
+      hanuka:[12,12],           // 12 דצמבר בערב עד 20 דצמבר
+      hanukaend:[12,20],
     },
     2029:{
-      tubishvat:[1,31],       // Tue 30 Jan sunset → 31 Jan
-      purim:[3,1],            // Wed 28 Feb sunset → 1 Mar
-      pesach:[3,31], pesachend:[4,6], // Fri 30 Mar sunset → 31 Mar - 6 Apr
-      yomhashoah:[4,11],      // Wed 11 Apr
-      yomzikaron:[4,17],      // Tue 17 Apr
-      atzmaut:[4,18],         // Wed 18 Apr
-      lag:[5,3],              // Wed 2 May sunset → 3 May
-      shavuot:[5,20],         // Sat 19 May sunset → 20 May
-      tzomtamuz:[7,1],        // Sun 1 Jul (dawn fast)
-      tishabeav:[7,22],       // Sat 21 Jul sunset → 22 Jul
-      rh:[9,10], rhend:[9,11],// Sun 9 Sep sunset → 10-11 Sep
-      yk:[9,19],              // Tue 18 Sep sunset → 19 Sep
-      sukkot:[9,24], sukkotend:[9,30], // Sun 23 Sep sunset → 24-30 Sep
-      simchatorah:[10,1],     // Sun 30 Sep sunset → 1 Oct
-      hanuka:[12,2], hanukaend:[12,9], // Sat 1 Dec sunset → 2-9 Dec
+      tubishvat:[1,30],         // 30 ינואר בערב עד 31 ינואר
+      purim:[2,28],             // 28 פברואר בערב עד 1 מרץ
+      pesach:[3,30],            // 30 מרץ בערב עד 7 אפריל
+      pesachend:[4,7],
+      yomhashoah:[4,11],        // 11 אפריל בערב עד 12 אפריל
+      yomzikaron:[4,18],        // 18 אפריל בערב עד 19 אפריל
+      atzmaut:[4,19],           // 19 אפריל בערב עד 20 אפריל
+      lag:[5,2],                // 2 מאי בערב עד 3 מאי
+      shavuot:[5,19],           // 19 מאי בערב עד 20 מאי
+      tishabeav:[7,21],         // 21 יולי בערב עד 22 יולי
+      rh:[9,9],                 // 9 ספטמבר בערב עד 11 ספטמבר
+      rhend:[9,11],
+      yk:[9,18],                // 18 ספטמבר בערב עד 19 ספטמבר
+      sukkot:[9,23],            // 23 ספטמבר בערב עד 1 אוקטובר
+      sukkotend:[10,1],
+      simchatorah:[10,1],
+      hanuka:[12,1],            // 1 דצמבר בערב עד 9 דצמבר
+      hanukaend:[12,9],
     },
     2030:{
-      tubishvat:[1,19],       // Fri 18 Jan sunset → 19 Jan
-      purim:[3,19],           // Mon 18 Mar sunset → 19 Mar
-      pesach:[4,18], pesachend:[4,24], // Wed 17 Apr sunset → 18-24 Apr
-      yomhashoah:[4,29],      // Mon 29 Apr
-      yomzikaron:[5,6],       // Mon 6 May
-      atzmaut:[5,7],          // Tue 7 May
-      lag:[5,21],             // Mon 20 May sunset → 21 May
-      shavuot:[6,7],          // Thu 6 Jun sunset → 7 Jun
-      tzomtamuz:[7,18],       // Thu 18 Jul (dawn fast)
-      tishabeav:[8,8],        // Wed 7 Aug sunset → 8 Aug
-      rh:[9,28], rhend:[9,29],// Fri 27 Sep sunset → 28-29 Sep
-      yk:[10,7],              // Sun 6 Oct sunset → 7 Oct
-      sukkot:[10,12], sukkotend:[10,18], // Fri 11 Oct sunset → 12-18 Oct
-      simchatorah:[10,19],    // Fri 18 Oct sunset → 19 Oct
-      hanuka:[12,21], hanukaend:[12,28],// Fri 20 Dec sunset → 21-28 Dec
+      tubishvat:[2,17],         // 17 פברואר בערב עד 18 פברואר
+      purim:[3,18],             // 18 מרץ בערב עד 19 מרץ
+      pesach:[4,17],            // 17 אפריל בערב עד 25 אפריל
+      pesachend:[4,25],
+      yomhashoah:[4,29],        // 29 אפריל בערב עד 30 אפריל
+      yomzikaron:[5,6],         // 6 מאי בערב עד 7 מאי
+      atzmaut:[5,7],            // 7 מאי בערב עד 8 מאי
+      lag:[5,20],               // 20 מאי בערב עד 21 מאי
+      shavuot:[6,6],            // 6 יוני בערב עד 7 יוני
+      tishabeav:[8,7],          // 7 אוגוסט בערב עד 8 אוגוסט
+      rh:[9,27],                // 27 ספטמבר בערב עד 29 ספטמבר
+      rhend:[9,29],
+      yk:[10,6],                // 6 אוקטובר בערב עד 7 אוקטובר
+      sukkot:[10,11],           // 11 אוקטובר בערב עד 19 אוקטובר
+      sukkotend:[10,19],
+      simchatorah:[10,19],
+      hanuka:[12,20],           // 20 דצמבר בערב עד 28 דצמבר
+      hanukaend:[12,28],
     },
     2031:{
-      tubishvat:[2,8],        // Fri 7 Feb sunset → 8 Feb
-      purim:[3,9],            // Sat 8 Mar sunset → 9 Mar
-      pesach:[4,8], pesachend:[4,14], // Mon 7 Apr sunset → 8-14 Apr
-      yomhashoah:[4,20],      // Sun 20 Apr
-      yomzikaron:[4,27],      // Sun 27 Apr
-      atzmaut:[4,28],         // Mon 28 Apr
-      lag:[5,11],             // Sat 10 May sunset → 11 May
-      shavuot:[5,28],         // Tue 27 May sunset → 28 May
-      tzomtamuz:[7,8],        // Tue 8 Jul (dawn fast)
-      tishabeav:[7,29],       // Mon 28 Jul sunset → 29 Jul
-      rh:[9,18], rhend:[9,19],// Wed 17 Sep sunset → 18-19 Sep
-      yk:[9,27],              // Fri 26 Sep sunset → 27 Sep
-      sukkot:[10,2], sukkotend:[10,8], // Wed 1 Oct sunset → 2-8 Oct
-      simchatorah:[10,9],     // Wed 8 Oct sunset → 9 Oct
-      hanuka:[12,10], hanukaend:[12,17],// Tue 9 Dec sunset → 10-17 Dec
+      tubishvat:[2,7],          // 7 פברואר בערב עד 8 פברואר
+      purim:[3,8],              // 8 מרץ בערב עד 9 מרץ
+      pesach:[4,7],             // 7 אפריל בערב עד 15 אפריל
+      pesachend:[4,15],
+      yomhashoah:[4,20],        // 20 אפריל בערב עד 21 אפריל
+      yomzikaron:[4,27],        // 27 אפריל בערב עד 28 אפריל
+      atzmaut:[4,28],           // 28 אפריל בערב עד 29 אפריל
+      lag:[5,10],               // 10 מאי בערב עד 11 מאי
+      shavuot:[5,27],           // 27 מאי בערב עד 28 מאי
+      tishabeav:[7,28],         // 28 יולי בערב עד 29 יולי
+      rh:[9,17],                // 17 ספטמבר בערב עד 19 ספטמבר
+      rhend:[9,19],
+      yk:[9,26],                // 26 ספטמבר בערב עד 27 ספטמבר
+      sukkot:[10,1],            // 1 אוקטובר בערב עד 9 אוקטובר
+      sukkotend:[10,9],
+      simchatorah:[10,9],
+      hanuka:[12,10],           // 10 דצמבר בערב עד 18 דצמבר
+      hanukaend:[12,18],
     },
     2032:{
-      tubishvat:[1,28],       // Tue 27 Jan sunset → 28 Jan
-      purim:[2,26],           // Wed 25 Feb sunset → 26 Feb
-      pesach:[3,27], pesachend:[4,2], // Fri 26 Mar sunset → 27 Mar - 2 Apr
-      yomhashoah:[4,7],       // Wed 7 Apr
-      yomzikaron:[4,13],      // Tue 13 Apr
-      atzmaut:[4,14],         // Wed 14 Apr
-      lag:[5,16],             // Sat 15 May sunset → 16 May
-      shavuot:[4,29],         // Wed 28 Apr sunset → 29 Apr (שבועות 5792 = 29 Apr)
-      tzomtamuz:[6,27],       // Sun 27 Jun (dawn fast)
-      tishabeav:[7,18],       // Sat 17 Jul sunset → 18 Jul
-      rh:[9,6], rhend:[9,7],  // Sun 5 Sep sunset → 6-7 Sep
-      yk:[9,15],              // Tue 14 Sep sunset → 15 Sep
-      sukkot:[9,20], sukkotend:[9,26], // Sun 19 Sep sunset → 20-26 Sep
-      simchatorah:[9,27],     // Sun 26 Sep sunset → 27 Sep
-      hanuka:[11,28], hanukaend:[12,5],// Sat 27 Nov sunset → 28 Nov - 5 Dec
+      tubishvat:[1,26],         // 26 ינואר בערב עד 27 ינואר
+      purim:[2,25],             // 25 פברואר בערב עד 26 פברואר
+      pesach:[3,26],            // 26 מרץ בערב עד 3 אפריל
+      pesachend:[4,3],
+      yomhashoah:[4,8],         // 8 אפריל בערב עד 9 אפריל
+      yomzikaron:[4,14],        // 14 אפריל בערב עד 15 אפריל
+      atzmaut:[4,15],           // 15 אפריל בערב עד 16 אפריל
+      lag:[4,28],               // 28 אפריל בערב עד 29 אפריל
+      shavuot:[5,15],           // 15 מאי בערב עד 16 מאי
+      tishabeav:[7,17],         // 17 יולי בערב עד 18 יולי
+      rh:[9,5],                 // 5 ספטמבר בערב עד 7 ספטמבר
+      rhend:[9,7],
+      yk:[9,14],                // 14 ספטמבר בערב עד 15 ספטמבר
+      sukkot:[9,19],            // 19 ספטמבר בערב עד 27 ספטמבר
+      sukkotend:[9,27],
+      simchatorah:[9,27],
+      hanuka:[11,28],           // 28 נובמבר בערב עד 6 דצמבר
+      hanukaend:[12,6],
     },
     2033:{
-      tubishvat:[1,15],       // Fri 14 Jan sunset → 15 Jan
-      purim:[3,15],           // Mon 14 Mar sunset → 15 Mar
-      pesach:[4,14], pesachend:[4,20], // Wed 13 Apr sunset → 14-20 Apr
-      yomhashoah:[4,25],      // Mon 25 Apr
-      yomzikaron:[5,2],       // Mon 2 May
-      atzmaut:[5,3],          // Tue 3 May
-      lag:[5,17],             // Mon 16 May sunset → 17 May
-      shavuot:[6,3],          // Thu 2 Jun sunset → 3 Jun
-      tzomtamuz:[7,14],       // Thu 14 Jul (dawn fast)
-      tishabeav:[8,4],        // Wed 3 Aug sunset → 4 Aug
-      rh:[9,24], rhend:[9,25],// Fri 23 Sep sunset → 24-25 Sep
-      yk:[10,3],              // Sun 2 Oct sunset → 3 Oct
-      sukkot:[10,8], sukkotend:[10,14], // Fri 7 Oct sunset → 8-14 Oct
-      simchatorah:[10,15],    // Fri 14 Oct sunset → 15 Oct
-      hanuka:[12,17], hanukaend:[12,24],// Fri 16 Dec sunset → 17-24 Dec
+      tubishvat:[2,13],         // 13 פברואר בערב עד 14 פברואר
+      purim:[3,14],             // 14 מרץ בערב עד 15 מרץ
+      pesach:[4,13],            // 13 אפריל בערב עד 21 אפריל
+      pesachend:[4,21],
+      yomhashoah:[4,25],        // 25 אפריל בערב עד 26 אפריל
+      yomzikaron:[5,2],         // 2 מאי בערב עד 3 מאי
+      atzmaut:[5,3],            // 3 מאי בערב עד 4 מאי
+      lag:[5,16],               // 16 מאי בערב עד 17 מאי
+      shavuot:[6,2],            // 2 יוני בערב עד 3 יוני
+      tishabeav:[8,3],          // 3 אוגוסט בערב עד 4 אוגוסט
+      rh:[9,23],                // 23 ספטמבר בערב עד 25 ספטמבר
+      rhend:[9,25],
+      yk:[10,2],                // 2 אוקטובר בערב עד 3 אוקטובר
+      sukkot:[10,7],            // 7 אוקטובר בערב עד 15 אוקטובר
+      sukkotend:[10,15],
+      simchatorah:[10,15],
+      hanuka:[12,16],           // 16 דצמבר בערב עד 24 דצמבר
+      hanukaend:[12,24],
     },
     2034:{
-      tubishvat:[2,4],        // Fri 3 Feb sunset → 4 Feb
-      purim:[3,5],            // Sat 4 Mar sunset → 5 Mar
-      pesach:[4,4], pesachend:[4,10], // Mon 3 Apr sunset → 4-10 Apr
-      yomhashoah:[4,16],      // Sun 16 Apr
-      yomzikaron:[4,23],      // Sun 23 Apr
-      atzmaut:[4,24],         // Mon 24 Apr
-      lag:[5,7],              // Sat 6 May sunset → 7 May
-      shavuot:[5,24],         // Tue 23 May sunset → 24 May
-      tzomtamuz:[7,4],        // Tue 4 Jul (dawn fast)
-      tishabeav:[7,25],       // Mon 24 Jul sunset → 25 Jul
-      rh:[9,14], rhend:[9,15],// Wed 13 Sep sunset → 14-15 Sep
-      yk:[9,23],              // Fri 22 Sep sunset → 23 Sep
-      sukkot:[9,28], sukkotend:[10,4], // Wed 27 Sep sunset → 28 Sep - 4 Oct
-      simchatorah:[10,5],     // Wed 4 Oct sunset → 5 Oct
-      hanuka:[12,7], hanukaend:[12,14],// Wed 6 Dec sunset → 7-14 Dec
+      tubishvat:[2,3],          // 3 פברואר בערב עד 4 פברואר
+      purim:[3,4],              // 4 מרץ בערב עד 5 מרץ
+      pesach:[4,3],             // 3 אפריל בערב עד 11 אפריל
+      pesachend:[4,11],
+      yomhashoah:[4,16],        // 16 אפריל בערב עד 17 אפריל
+      yomzikaron:[4,24],        // 24 אפריל בערב עד 25 אפריל
+      atzmaut:[4,25],           // 25 אפריל בערב עד 26 אפריל
+      lag:[5,6],                // 6 מאי בערב עד 7 מאי
+      shavuot:[5,23],           // 23 מאי בערב עד 24 מאי
+      tishabeav:[7,24],         // 24 יולי בערב עד 25 יולי
+      rh:[9,13],                // 13 ספטמבר בערב עד 15 ספטמבר
+      rhend:[9,15],
+      yk:[9,22],                // 22 ספטמבר בערב עד 23 ספטמבר
+      sukkot:[9,27],            // 27 ספטמבר בערב עד 5 אוקטובר
+      sukkotend:[10,5],
+      simchatorah:[10,5],
+      hanuka:[12,6],            // 6 דצמבר בערב עד 14 דצמבר
+      hanukaend:[12,14],
     },
     2035:{
-      tubishvat:[1,25],       // Wed 24 Jan sunset → 25 Jan
-      purim:[3,25],           // Sat 24 Mar sunset → 25 Mar
-      pesach:[4,24], pesachend:[4,30], // Mon 23 Apr sunset → 24-30 Apr
-      yomhashoah:[5,6],       // Sun 6 May
-      yomzikaron:[5,13],      // Sun 13 May
-      atzmaut:[5,14],         // Mon 14 May
-      lag:[5,27],             // Sat 26 May sunset → 27 May
-      shavuot:[6,13],         // Tue 12 Jun sunset → 13 Jun
-      tzomtamuz:[7,24],       // Tue 24 Jul (dawn fast)
-      tishabeav:[8,14],       // Mon 13 Aug sunset → 14 Aug
-      rh:[10,4], rhend:[10,5],// Wed 3 Oct sunset → 4-5 Oct
-      yk:[10,13],             // Fri 12 Oct sunset → 13 Oct
-      sukkot:[10,18], sukkotend:[10,24], // Wed 17 Oct sunset → 18-24 Oct
-      simchatorah:[10,25],    // Wed 24 Oct sunset → 25 Oct
-      // חנוכה: Tue 25 Dec sunset → 26 Dec ... נמשך לינואר 2036
-      hanuka:[12,26], hanukaend:[12,26], // placeholder — נגמר 2 Jan 2036
+      tubishvat:[1,24],         // 24 ינואר בערב עד 25 ינואר
+      purim:[3,24],             // 24 מרץ בערב עד 25 מרץ
+      pesach:[4,23],            // 23 אפריל בערב עד 1 מאי
+      pesachend:[5,1],
+      yomhashoah:[5,6],         // 6 מאי בערב עד 7 מאי
+      yomzikaron:[5,13],        // 13 מאי בערב עד 14 מאי
+      atzmaut:[5,14],           // 14 מאי בערב עד 15 מאי
+      lag:[5,26],               // 26 מאי בערב עד 27 מאי
+      shavuot:[6,12],           // 12 יוני בערב עד 13 יוני
+      tishabeav:[8,13],         // 13 אוגוסט בערב עד 14 אוגוסט
+      rh:[10,3],                // 3 אוקטובר בערב עד 5 אוקטובר
+      rhend:[10,5],
+      yk:[10,12],               // 12 אוקטובר בערב עד 13 אוקטובר
+      sukkot:[10,17],           // 17 אוקטובר בערב עד 25 אוקטובר
+      sukkotend:[10,25],
+      simchatorah:[10,25],
+      hanuka:[12,26],           // 26 דצמבר בערב — נגמר 3 ינואר 2036
+      hanukaend:[12,31],        // 31 דצמבר (ממשיך 1-3 ינואר 2036)
     },
     2036:{
-      tubishvat:[2,13],       // Tue 12 Feb sunset → 13 Feb
-      purim:[3,13],           // Wed 12 Mar sunset → 13 Mar
-      pesach:[4,12], pesachend:[4,18], // Fri 11 Apr sunset → 12-18 Apr
-      yomhashoah:[4,23],      // Wed 23 Apr
-      yomzikaron:[4,29],      // Tue 29 Apr
-      atzmaut:[4,30],         // Wed 30 Apr
-      lag:[5,15],             // Wed 14 May sunset → 15 May
-      shavuot:[6,1],          // Sat 31 May sunset → 1 Jun
-      tzomtamuz:[7,13],       // Sun 13 Jul (dawn fast)
-      tishabeav:[8,3],        // Sat 2 Aug sunset → 3 Aug
-      rh:[9,22], rhend:[9,23],// Sun 21 Sep sunset → 22-23 Sep
-      yk:[10,1],              // Tue 30 Sep sunset → 1 Oct
-      sukkot:[10,6], sukkotend:[10,12], // Sun 5 Oct sunset → 6-12 Oct
-      simchatorah:[10,13],    // Sun 12 Oct sunset → 13 Oct
-      hanuka:[12,14], hanukaend:[12,21],// Sat 13 Dec sunset → 14-21 Dec
+      tubishvat:[2,12],         // 12 פברואר בערב עד 13 פברואר
+      purim:[3,12],             // 12 מרץ בערב עד 13 מרץ
+      pesach:[4,11],            // 11 אפריל בערב עד 19 אפריל
+      pesachend:[4,19],
+      yomhashoah:[4,23],        // 23 אפריל בערב עד 24 אפריל
+      yomzikaron:[4,30],        // 30 אפריל בערב עד 1 מאי
+      atzmaut:[5,1],            // 1 מאי בערב עד 2 מאי
+      lag:[5,14],               // 14 מאי בערב עד 15 מאי
+      shavuot:[6,1],            // 1 יוני בערב עד 2 יוני
+      tishabeav:[7,31],         // 31 יולי בערב עד 1 אוגוסט
+      rh:[9,21],                // 21 ספטמבר בערב עד 23 ספטמבר
+      rhend:[9,23],
+      yk:[9,30],                // 30 ספטמבר בערב עד 1 אוקטובר
+      sukkot:[10,5],            // 5 אוקטובר בערב עד 13 אוקטובר
+      sukkotend:[10,13],
+      simchatorah:[10,13],
+      hanuka:[12,14],           // 14 דצמבר בערב עד 22 דצמבר
+      hanukaend:[12,22],
     },
   };
 
@@ -232,13 +262,11 @@ export function getMCTX(year){
     if(h.atzmaut[0]===m) d.push(`יום העצמאות (${h.atzmaut[1]}.${m})`);
     if(h.lag[0]===m) d.push(`לג בעומר (${h.lag[1]}.${m})`);
     if(h.shavuot[0]===m) d.push(`שבועות (${h.shavuot[1]}.${m})`);
-    if(h.tzomtamuz[0]===m) d.push(`י"ז בתמוז (${h.tzomtamuz[1]}.${m})`);
     if(h.tishabeav[0]===m) d.push(`תשעה באב (${h.tishabeav[1]}.${m})`);
     if(h.rh[0]===m) d.push(`ראש השנה (${h.rh[1]}-${h.rhend[1]}.${h.rhend[0]})`);
     if(h.yk[0]===m) d.push(`יום כיפור (${h.yk[1]}.${m})`);
-    if(h.sukkot[0]===m) d.push(`סוכות (${h.sukkot[1]}.${h.sukkot[0]}-${h.sukkotend[1]}.${h.sukkotend[0]})`);
-    if(h.sukkotend[0]===m&&h.sukkotend[0]!==h.sukkot[0]) d.push(`סוכות המשך (עד ${h.sukkotend[1]}.${m})`);
-    if(h.simchatorah[0]===m) d.push(`שמחת תורה (${h.simchatorah[1]}.${m})`);
+    if(h.sukkot[0]===m) d.push(`סוכות ושמחת תורה (${h.sukkot[1]}.${h.sukkot[0]}-${h.sukkotend[1]}.${h.sukkotend[0]})`);
+    if(h.sukkotend[0]===m&&h.sukkotend[0]!==h.sukkot[0]) d.push(`סוכות/שמחת תורה המשך (עד ${h.sukkotend[1]}.${m})`);
     if(h.hanuka[0]===m) d.push(`חנוכה (${h.hanuka[1]}.${h.hanuka[0]}-${h.hanukaend[1]}.${h.hanukaend[0]})`);
     if(h.hanukaend[0]===m&&h.hanukaend[0]!==h.hanuka[0]) d.push(`חנוכה המשך (עד ${h.hanukaend[1]}.${m})`);
     return d.join(' | ')||'ללא';
