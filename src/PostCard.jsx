@@ -19,7 +19,7 @@ export default function PostCard({post,ctx,onUpdate,isSharedView}){
   }
   function save(){onUpdate({...post,copy:txt});setEditing(false);}
 
- async function handleImg(file){ const url=await upoadImage(file); if(url){setImg(url);onUpdate({...post,image:url});} }
+ async function handleImg(file){ const url=await uploadImage(file); if(url){setImg(url);onUpdate({...post,image:url});} }
 
   const statusIcon=post.copy?"✅":isPromo?"⭕":"⏳";
   const statusTxt=post.copy?"מוכן":"ממתין לייצור אוטומטי";
