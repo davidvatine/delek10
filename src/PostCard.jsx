@@ -47,7 +47,7 @@ export default function PostCard({post,ctx,onUpdate,isSharedView}){
             <img src={img} style={{width:"100%",maxWidth:380,height:"auto",objectFit:"contain",borderRadius:8,background:"#F8FAFC",cursor:isSharedView?"default":"pointer"}} onClick={()=>!isSharedView&&fileRef.current?.click()}/>
           ):(!isSharedView?(
             <div onClick={()=>fileRef.current?.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)handleImg(f);}}
-              style={{width:100%,height:200,border:"2px dashed #CBD5E1",borderRadius:10,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",color:"#94A3B8",fontSize:11,textAlign:"center",cursor:"pointer"}}>
+              style={{width:"100%",height:200,border:"2px dashed #CBD5E1",borderRadius:10,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",color:"#94A3B8",fontSize:11,textAlign:"center",cursor:"pointer"}}>
               <span style={{fontSize:22}}>📤</span>
               <span>העלה תמונה מעוצבת</span>
               <span style={{fontSize:10,marginTop:2}}>לחץ או גרור לכאן</span>
