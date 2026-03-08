@@ -3,42 +3,93 @@ export default async function handler(req, res) {
 
   const { ganttKey, posts } = req.body;
 
-  // שמירה ב-Supabase
-  await fetch(`https://oexdfprqbhlbuesaxfjx.supabase.co/rest/v1/feedback`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9leGRmcHJxYmhsYnVlc2F4Zmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDk4MzQsImV4cCI6MjA4ODI4NTgzNH0.jh-Tv2d8dQOW8UQ6UgiBcpVTTzlaePzWQg9ozm6BSgs",
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9leGRmcHJxYmhsYnVlc2F4Zmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDk4MzQsImV4cCI6MjA4ODI4NTgzNH0.jh-Tv2d8dQOW8UQ6UgiBcpVTTzlaePzWQg9ozm6BSgs",
-    },
-    body: JSON.stringify({ gantt_key: ganttKey, posts }),
-  });
+  // --- 1. Save to Supabase ---
+  try {
+    const supabaseRes = await fetch(
+      `https://oexdfprqbhlbuesaxfjx.supabase.co/rest/v1/feedback`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: process.env.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({ gantt_key: ganttKey, posts }),
+      }
+    );
 
-  // שליחת מייל
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    "Authorization": "Bearer re_fe3A7Y7B_2nx2oemNardUT7YzNndRAPSF",
-    },
-    body: JSON.stringify({
-      from: "onboarding@resend.dev",
-      to: "david@davidvatine.co.il",
-      subject: "פידבק חדש מלקוח על הגאנט",
-      html: `<div dir="rtl">
-        <h2>פידבק חדש התקבל!</h2>
-        <p><strong>מפתח גאנט:</strong> ${ganttKey}</p>
-        <hr/>
-        ${posts.map(p => `
-          <div style="margin-bottom:16px;padding:12px;border:1px solid #e2e8f0;border-radius:8px">
-            <strong>#${p.id} | ${p.date || "לפי מבצע"} | ${p.type}</strong><br/>
-            סטטוס: ${p.approved ? "✅ מאושר" : "⏳ ממתין"}<br/>
-            ${p.clientNote ? `הערה: ${p.clientNote}` : ""}
-          </div>
-        `).join("")}
-      </div>`,
-    }),
-  });
+    if (!supabaseRes.ok) {
+      const errText = await supabaseRes.text();
+      console.error("Supabase error:", supabaseRes.status, errText);
+    } else {
+      console.log("Supabase save OK");
+    }
+  } catch (err) {
+    console.error("Supabase fetch failed:", err);
+  }
 
-  res.status(200).json({ ok: true, note: "resend called" });
+  // --- 2. Build the email HTML ---
+  const emailHtml = `<div dir="rtl">
+    <h2>פידבק חדש התקבל!</h2>
+    <p><strong>מפתח גאנט:</strong> ${ganttKey}</p>
+    <hr/>
+    ${posts
+      .map(
+        (p) => `
+      <div style="margin-bottom:16px;padding:12px;border:1px solid #e2e8f0;border-radius:8px">
+        <strong>#${p.id} | ${p.date || "לפי מבצע"} | ${p.type}</strong><br/>
+        סטטוס: ${p.approved ? "✅ מאושר" : "⏳ ממתין"}<br/>
+        ${p.clientNote ? `הערה: ${p.clientNote}` : ""}
+      </div>
+    `
+      )
+      .join("")}
+  </div>`;
+
+  // --- 3. Send email via Resend ---
+  try {
+    const resendRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: "support@davidvatine.co.il",
+        to: "david@davidvatine.co.il",
+        subject: "פידבק חדש מלקוח על הגאנט",
+        html: emailHtml,
+      }),
+    });
+
+    const resendData = await resendRes.json();
+    console.log("Resend status:", resendRes.status);
+    console.log("Resend response:", JSON.stringify(resendData));
+
+    if (!resendRes.ok) {
+      console.error("Resend error:", resendRes.status, resendData);
+      return res.status(200).json({
+        ok: true,
+        supabase: "saved",
+        email: "failed",
+        emailError: resendData,
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      supabase: "saved",
+      email: "sent",
+      emailId: resendData.id,
+    });
+  } catch (err) {
+    console.error("Resend fetch failed:", err);
+    return res.status(200).json({
+      ok: true,
+      supabase: "saved",
+      email: "failed",
+      emailError: err.message,
+    });
+  }
 }
