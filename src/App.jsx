@@ -50,18 +50,12 @@ function SharedView({ ganttData }) {
   return (
     <div style={{ minHeight: "100vh", background: "#F1F5F9", direction: "rtl", fontFamily: "system-ui" }}>
           <header style={{ background: "linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div onClick={() => { window.history.pushState({}, "", "/"); window.dispatchEvent(new PopStateEvent("popstate")); }} style={{ cursor: "pointer" }}>
-  <SLogo src="/david-white-logo.png" alt="DV" style={{ width: 52, height: 52, objectFit: "contain" }} />
-</div>
-          <SLogo src={TEN_LOGO} alt="Ten" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
-          <div style={{ textAlign: "right" }}>
-            <div style={{ color: "#fff", fontWeight: 800, fontSize: 15 }}>אישור גאנט | דלק Ten</div>
-            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 10 }}>v8.0</div>
-          </div>
-        </div>
-        <button onClick={onBack} style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "none", padding: "7px 13px", borderRadius: 9, cursor: "pointer", fontWeight: 700, fontSize: 12, fontFamily: "system-ui" }}>← חזרה</button>
-      </header>
+  <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 13 }}>עברו על הפוסטים, אשרו או הוסיפו הערות, ולחצו שלח בסוף</div>
+  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+    <div style={{ color: WH, fontWeight: 800, fontSize: 15 }}>אישור גאנט | {MHE[month]} {year} — דלק Ten</div>
+    <SLogo src={TEN_LOGO} alt="Ten" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
+  </div>
+</header>
       <main style={{ maxWidth: 900, margin: "24px auto", padding: "0 16px" }}>
         <GanttTable posts={localPosts} month={month} year={year} extraCtx={extraCtx} />
         {localPosts.map(p => (
