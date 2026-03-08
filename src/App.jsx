@@ -49,16 +49,15 @@ function SharedView({ ganttData }) {
   const [sent, setSent] = useState(false);
   return (
     <div style={{ minHeight: "100vh", background: "#F1F5F9", direction: "rtl", fontFamily: "system-ui" }}>
-        <header style={{ background: "linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
- 
-  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-    <div style={{ textAlign: "right" }}>
-      <div style={{ color: WH, fontWeight: 800, fontSize: 15 }}>אישור גאנט | {MHE[month]} {year} - דלק Ten</div>
-    </div>
-    <SLogo src={TEN_LOGO} alt="Ten" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
-  </div>
-           <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 13 }}>עברו על הפוסטים, אשרו או הוסיפו הערות, ולחצו שלח בסוף</div>
-</header>
+      <header style={{ background: "linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ color: WH, fontWeight: 800, fontSize: 15 }}>אישור גאנט | {MHE[month]} {year} - דלק Ten</div>
+          </div>
+          <SLogo src={TEN_LOGO} alt="Ten" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
+        </div>
+        <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 13 }}>עברו על הפוסטים, אשרו או הוסיפו הערות, ולחצו שלח בסוף</div>
+      </header>
       <main style={{ maxWidth: 900, margin: "24px auto", padding: "0 16px" }}>
         <GanttTable posts={localPosts} month={month} year={year} extraCtx={extraCtx} />
         {localPosts.map(p => (
@@ -66,16 +65,21 @@ function SharedView({ ganttData }) {
             onUpdate={u => setLocalPosts(prev => prev.map(x => x.id === u.id ? u : x))} isSharedView />
         ))}
         {!sent
-? <button onClick={async () => {
-  const r = await fetch("/api/send-feedback", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ganttKey: new URLSearchParams(window.location.search).get("gantt"), posts: localPosts }),
-  });
-  const data = await r.json();
-  alert("סטטוס: " + r.status + "\n" + JSON.stringify(data));
-  setSent(true);
-}}          : <div style={{ background: "#DCFCE7", border: "1px solid #86EFAC", borderRadius: 14, padding: 20, textAlign: "center", marginTop: 16, color: "#166534", fontWeight: 700, fontSize: 16 }}>✅ הפידבק נשלח! תודה</div>
+          ? <button
+              onClick={async () => {
+                const r = await fetch("/api/send-feedback", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ ganttKey: new URLSearchParams(window.location.search).get("gantt"), posts: localPosts }),
+                });
+                const data = await r.json();
+                alert("סטטוס: " + r.status + "\n" + JSON.stringify(data));
+                setSent(true);
+              }}
+              style={{ width: "100%", padding: "16px", background: "#1E3A5F", color: WH, border: "none", borderRadius: 14, fontSize: 16, fontWeight: 900, cursor: "pointer", marginTop: 16, fontFamily: "system-ui" }}>
+              📨 שלח פידבק לצוות
+            </button>
+          : <div style={{ background: "#DCFCE7", border: "1px solid #86EFAC", borderRadius: 14, padding: 20, textAlign: "center", marginTop: 16, color: "#166534", fontWeight: 700, fontSize: 16 }}>✅ הפידבק נשלח! תודה</div>
         }
         <div style={{ background: WH, borderRadius: 14, padding: 16, marginTop: 12, fontSize: 13, color: "#475569", lineHeight: 1.8 }}>
           <strong>איך זה עובד:</strong> עבור כל פוסט — לחץ ✅ מאושר או ✏️ יש הערה. בסוף לחץ שלח.
