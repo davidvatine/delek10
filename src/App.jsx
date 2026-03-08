@@ -78,8 +78,6 @@ function SharedView({ ganttData }) {
   clientName: "דלק Ten",
 }),
                 });
-                const data = await r.json();
-                alert("סטטוס: " + r.status + "\n" + JSON.stringify(data));
                 setSent(true);
               }}
               style={{ width: "100%", padding: "16px", background: "#1565c0", color: WH, border: "none", borderRadius: 14, fontSize: 16, fontWeight: 900, cursor: "pointer", marginTop: 16, fontFamily: "system-ui" }}>
