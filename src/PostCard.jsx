@@ -49,8 +49,8 @@ export default function PostCard({post,ctx,onUpdate,isSharedView}){
               <span style={{fontSize:22}}>📤</span>
               <span>העלה תמונה מעוצבת</span>
               <span style={{fontSize:10,marginTop:2}}>לחץ או גרור לכאן</span>
-            </div>
-          )}
+           </div>
+          ))}
           <input ref={fileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{if(e.target.files[0])handleImg(e.target.files[0]);}}/>
         </div>
 
