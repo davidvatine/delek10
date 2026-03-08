@@ -75,13 +75,13 @@ const storageKey = ganttKey ? `client-feedback-${ganttKey}` : null;
         <GanttTable posts={localPosts} month={month} year={year} extraCtx={extraCtx} />
         {localPosts.map(p => (
           <PostCard key={p.id} post={p} ctx={{ ...getMCTX(year)[month], extra: extraCtx }}
-            onUpdate={u => {
-  const newPosts = localPosts.map(x => x.id === u.id ? u : x);
+        onUpdate={u => {
+  const newPosts = localPosts.map(item => item.id === u.id ? u : item);
   setLocalPosts(newPosts);
   if (storageKey) {
     try {
       localStorage.setItem(storageKey, JSON.stringify(
-        newPosts.map(x => ({ id: p.id, approved: p.approved, clientNote: p.clientNote, promoText: p.promoText }))
+        newPosts.map(item => ({ id: item.id, approved: item.approved, clientNote: item.clientNote, promoText: item.promoText }))
       ));
     } catch {}
   }
