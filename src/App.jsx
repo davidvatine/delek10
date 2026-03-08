@@ -19,14 +19,26 @@ function getInitView() {
   }
   return "select";
 }
+function nearestMonday(targetDay, m, y) {
+  const date = new Date(y, m - 1, targetDay);
+  const dow = date.getDay(); // 0=ראשון, 1=שני...
+  if (dow === 1) return targetDay; // כבר יום שני
+  const diff = dow === 0 ? 1 : (8 - dow); // ימים עד שני הבא
+  const result = new Date(y, m - 1, targetDay + diff);
+  // אם יצא מהחודש — חזור אחורה לשני הקודם
+  if (result.getMonth() !== m - 1) {
+    return targetDay - (dow === 0 ? 6 : dow - 1);
+  }
+  return result.getDate();
+}
 
 function buildTemplate(m, y) {
   const rows = [
-    { id: 1, type: "שני חסכוני", d: 2 },
+   { id: 1, type: "שני חסכוני", d: nearestMonday(2, m, y) },
     { id: 2, type: "חג / אירוע", d: 4 },
     { id: 3, type: "מצחיק / אפליקציה", d: 9 },
     { id: 4, type: "דרושים", d: 16 },
-    { id: 5, type: "שני חסכוני", d: 30 },
+    { id: 5, type: "שני חסכוני", d: nearestMonday(30, m, y) },
     { id: 6, type: "פוסט מבצע" },
     { id: 7, type: "פוסט מבצע" },
     { id: 8, type: "פוסט מבצע" },
