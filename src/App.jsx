@@ -49,10 +49,12 @@ function SharedView({ ganttData }) {
   const [sent, setSent] = useState(false);
   return (
     <div style={{ minHeight: "100vh", background: "#F1F5F9", direction: "rtl", fontFamily: "system-ui" }}>
-          <header style={{ background: "linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
+        <header style={{ background: "linear-gradient(135deg,#C026D3 0%,#7C3AED 50%,#2563EB 100%)", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
   <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 13 }}>עברו על הפוסטים, אשרו או הוסיפו הערות, ולחצו שלח בסוף</div>
   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-    <div style={{ color: WH, fontWeight: 800, fontSize: 15 }}>אישור גאנט | {MHE[month]} {year} — דלק Ten</div>
+    <div style={{ textAlign: "right" }}>
+      <div style={{ color: WH, fontWeight: 800, fontSize: 15 }}>אישור גאנט | {MHE[month]} {year} — דלק Ten</div>
+    </div>
     <SLogo src={TEN_LOGO} alt="Ten" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
   </div>
 </header>
