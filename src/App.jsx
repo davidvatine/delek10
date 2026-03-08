@@ -237,9 +237,11 @@ export default function App() {
   // בדיקה אם נפתח דרך לינק שיתוף ?gantt=...
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const gKey = params.get("gantt");
-    if (gKey) loadGantt(gKey).then(data => { if (data) setSharedData(data); });
-  }, []);
+const gKey = params.get("gantt");
+if (gKey) {
+  setSharedData("loading");
+  loadGantt(gKey).then(data => { if (data) setSharedData(data); });
+}, []);
 
   // האזנה לכפתור חזרה של הדפדפן
   useEffect(() => {
@@ -292,7 +294,7 @@ export default function App() {
   const key = await saveGantt({ month, year, extraCtx, posts });
   setShareKey(key);
     
-    const url = `${window.location.origin}?gantt=${key}`;
+    const url = `${window.location.origin}/share?gantt=${key}`;
     navigator.clipboard.writeText(url).then(() => alert(`הלינק הועתק:\n${url}`));
   }
 
