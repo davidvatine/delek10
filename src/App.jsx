@@ -271,7 +271,8 @@ useEffect(() => {
     } catch {}
   }, []);
 
-  if (sharedData) return <SharedView ganttData={sharedData} />;
+if (sharedData === "loading") return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",fontSize:20}}>⏳ טוען...</div>;
+if (sharedData && sharedData !== "loading") return <SharedView ganttData={sharedData} />;
 
   const ctx = { ...getMCTX(year)[month], extra: extraCtx };
 
